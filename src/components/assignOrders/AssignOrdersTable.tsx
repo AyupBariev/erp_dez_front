@@ -1,23 +1,9 @@
 import { useState, useEffect } from "react";
 import "./AssignOrdersTable.css";
-import { assignOrder, cancelOrder } from "../../api/orders";
+import type {Order} from "../../api/orders";
+import {assignOrder, cancelOrder} from "../../api/orders";
 import ShareToast from "../share/ShareToast";
-
-interface Engineer {
-    id: number;
-    name: string;
-    is_working: boolean;
-}
-
-interface Order {
-    id: number;
-    erp_number: number;
-    client_name: string;
-    address: string;
-    scheduled_at: string;
-    status: string;
-    engineer?: Engineer | null;
-}
+import type {Engineer} from "../../api/engineer.ts";
 
 interface Props {
     engineers: Engineer[];
@@ -31,7 +17,7 @@ const HOURS = [
     "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"
 ];
 
-export default function AssignOrdersTable({ engineers, orders = [], selectedDate }: Props) {
+export default function AssignOrdersTable({ engineers, orders = [], /*selectedDate*/ }: Props) {
     const [ordersState, setOrdersState] = useState<Order[]>(orders);
 
     useEffect(() => {
@@ -61,7 +47,7 @@ export default function AssignOrdersTable({ engineers, orders = [], selectedDate
         return ordersState.filter(
             (o) =>
                 o.engineer?.id === engineerId &&
-                o.scheduled_at.includes(hourPrefix)
+                o.scheduled_at?.includes(hourPrefix)
         );
     };
 
@@ -160,7 +146,7 @@ export default function AssignOrdersTable({ engineers, orders = [], selectedDate
                                 eng.is_working ? "working-row" : "off-duty-row"
                             }`}
                         >
-                            <div className="engineer-name">{eng.name}</div>
+                            <div className="engineer-name">`{eng.first_name} {eng.second_name}`</div>
                             {HOURS.map((h) => (
                                 <div key={h} className="hour-cell">
                                     {getOrdersForEngineer(eng.id, h).map((order) => (
@@ -168,7 +154,9 @@ export default function AssignOrdersTable({ engineers, orders = [], selectedDate
                                             <div className="fw-bold">№{order.erp_number}</div>
                                             <div className="small text-muted">{order.address}</div>
                                             <div className="small">
-                                                🕒 {new Date(order.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                                                🕒 {order.scheduled_at
+                                                ? new Date(order.scheduled_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+                                                : "—"}
                                             </div>
                                         </div>
                                     ))}
@@ -206,7 +194,7 @@ export default function AssignOrdersTable({ engineers, orders = [], selectedDate
                                 .filter((e) => e.is_working)
                                 .map((e) => (
                                     <option key={e.id} value={e.id}>
-                                        {e.name}
+                                        `{e.first_name} {e.second_name}`
                                     </option>
                                 ))}
                         </select>

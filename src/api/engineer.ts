@@ -1,5 +1,4 @@
 import {apiFetch} from "./http.ts";
-import axios from "axios";
 
 export interface Engineer {
     id: number;
@@ -9,6 +8,7 @@ export interface Engineer {
     phone?: string;
     telegram_id?: number;
     is_approved?: boolean;
+    is_working?: boolean;
 }
 
 export interface CreateEngineerRequest {

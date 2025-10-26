@@ -19,7 +19,7 @@ const OrdersList: React.FC<Props> = ({ orders, onEdit }) => {
                         o.is_repeat ? "bg-yellow-100" : "bg-white"
                     }`}
                 >
-                    <div><strong>№ {o.number}</strong> — {o.title}</div>
+                    <div><strong>№ {o.erp_number}</strong> — {o.title}</div>
                     <div>{o.problem}</div>
                     <div>{o.address}</div>
                     <div>{o.scheduled_at ? new Date(o.scheduled_at).toLocaleString() : "Без даты"}</div>

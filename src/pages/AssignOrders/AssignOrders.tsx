@@ -1,21 +1,9 @@
 import { useEffect, useState } from "react";
 import AssignOrdersTable from "../../components/assignOrders/AssignOrdersTable";
-import { getOrders } from "../../api/orders";
+import type {Order} from "../../api/orders"
+import {getOrders, } from "../../api/orders";
+import type {Engineer} from "../../api/engineer";
 import {getEngineers} from "../../api/engineer";
-
-interface Engineer {
-    id: number;
-    name: string;
-    is_working: boolean;
-}
-
-interface Order {
-    id: number;
-    erp_number: number;
-    engineer_id?: number | null;
-    scheduled_at: string;
-    address: string;
-}
 
 export default function AssignOrders() {
     const [engineers, setEngineers] = useState<Engineer[]>([]);

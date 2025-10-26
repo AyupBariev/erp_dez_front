@@ -1,4 +1,5 @@
 import { apiFetch } from "./http";
+import type {Engineer} from "./engineer.ts";
 
 export type OrderStatus =
     | "new"                  // обращение
@@ -25,6 +26,7 @@ export interface Order {
     status: OrderStatus;
     is_repeat?: boolean;
     created_at?: string;
+    engineer?: Engineer;
 }
 
 export interface CreateOrderRequest {
