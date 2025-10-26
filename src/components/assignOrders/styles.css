@@ -1,0 +1,11 @@
+.assign-orders-grid {
+    display: grid;
+    grid-template-columns: 1fr repeat(5, 1fr);
+    gap: 8px;
+}
+.assign-orders-header {
+    display: contents;
+}
+.engineer-row {
+    display: contents;
+}

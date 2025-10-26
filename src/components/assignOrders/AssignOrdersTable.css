@@ -1,0 +1,168 @@
+.assign-wrapper {
+    width: 100%;
+    overflow: hidden;
+}
+
+.assign-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-color: #c1c1c1 transparent;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Контейнер таблицы должен растягиваться под количество часов */
+.assign-table {
+    display: inline-block; /* <-- ВАЖНО: чтобы скролл знал ширину */
+    min-width: max-content; /* <-- Растягивается под содержимое */
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.assign-scroll::after {
+    content: "";
+    position: sticky;
+    right: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(to left, white, transparent);
+    pointer-events: none;
+}
+
+.assign-header,
+.assign-row {
+    display: grid;
+    grid-template-columns: 200px repeat(16, 160px);
+    border-bottom: 1px solid #dee2e6;
+}
+
+.assign-header {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Колонка "Сервис-инженер" — компактная и фиксированная */
+.engineer-col {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    font-weight: 600;
+    border-right: 1px solid #dee2e6;
+    width: 120px; /* 👈 уменьшено с ~200px до 120px */
+    min-width: 120px;
+    max-width: 140px;
+    text-align: left;
+    z-index: 5;
+}
+
+/* Ячейки с именами инженеров */
+.engineer-name {
+    position: sticky;
+    left: 0;
+    background: #f8f9fa;
+    padding: 8px;
+    border-right: 1px solid #dee2e6;
+    width: 120px;
+    min-width: 120px;
+    max-width: 140px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap; /* 👈 чтобы не переносилось */
+    z-index: 5;
+}
+
+/* Для мобильных — ещё компактнее */
+@media (max-width: 768px) {
+    .engineer-col,
+    .engineer-name {
+        width: 90px;
+        min-width: 90px;
+        max-width: 100px;
+        font-size: 13px;
+        padding: 6px;
+    }
+}
+
+.hour-col {
+    padding: 8px;
+    border-right: 1px solid #dee2e6;
+}
+
+.assign-row {
+    min-height: 60px;
+}
+
+/* Рабочие инженеры — серая строка */
+.working-row {
+    background-color: #f5f5f5;
+}
+
+/* Выходной — красная строка */
+.off-duty-row {
+    background-color: #ffe6e6;
+}
+
+/* Чтобы имя оставалось видно */
+.working-row .engineer-name {
+    background-color: #f5f5f5;
+}
+
+.off-duty-row .engineer-name {
+    background-color: #ffcccc;
+    color: #b71c1c;
+}
+
+.hour-cell {
+    border-right: 1px solid #dee2e6;
+    padding: 6px;
+    min-height: 60px;
+    background: transparent;
+}
+
+.hour-cell:last-child {
+    border-right: none;
+}
+
+.order-box {
+    background-color: #e9f7ef;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin-bottom: 4px;
+    font-size: 13px;
+    white-space: normal;
+}
+
+.unassigned-block {
+    margin-top: 24px;
+}
+
+.unassigned-order {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+
+.btn {
+    border-radius: 6px;
+}
+
+.unassigned-order {
+    transition: 0.2s ease;
+}
+
+.unassigned-order:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.unassigned-order select {
+    font-size: 14px;
+    padding: 6px 8px;
+}
+
+.unassigned-order button {
+    font-size: 14px;
+    padding: 6px;
+}
