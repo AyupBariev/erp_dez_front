@@ -1,6 +1,20 @@
 import React, { useState } from "react";
+import {
+    Box,
+    TextField,
+    Typography,
+    Button,
+    MenuItem,
+    Stack,
+    Paper,
+    Divider,
+    CircularProgress,
+    Alert,
+    IconButton,
+} from "@mui/material";
+import { Add, Close, Save, Delete } from "@mui/icons-material";
 import type { Order, CreateOrderRequest } from "../../api/orders";
-import { IconPlus, IconX, IconDeviceFloppy } from "@tabler/icons-react";
+import { useDictionaries } from "../../hooks/useDictionaries";
 
 interface Props {
     order: Order | null;
@@ -9,168 +23,329 @@ interface Props {
 }
 
 const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
-    const [clientName, setClientName] = useState(order?.client_name || "");
-    const [phones, setPhones] = useState<string[]>(order?.phones || [""]);
+    const { sources, problems, loading, error } = useDictionaries();
+
+    const [date, setDate] = useState(
+        order?.scheduled_at ? order.scheduled_at.split(" ")[0] : ""
+    );
+    const [time, setTime] = useState(
+        order?.scheduled_at ? order.scheduled_at.split(" ")[1]?.slice(0, 5) : ""
+    );
+    const [workVolume, setWorkVolume] = useState(order?.work_volume || "");
+    const [problemId, setProblemId] = useState<number>(order?.problem_id || 0);
+    const [price, setPrice] = useState<string>(order?.price || "0");
     const [address, setAddress] = useState(order?.address || "");
-    const [problem, setProblem] = useState(order?.problem || "");
-    const [title, setTitle] = useState(order?.title || "");
-    const [scheduledAt, setScheduledAt] = useState(order?.scheduled_at || "");
+    const [phones, setPhones] = useState<string[]>(
+        order?.phones && order.phones.length > 0 ? order.phones : [""]
+    );
+    const [clientName, setClientName] = useState(order?.client_name || "");
+    const [note, setNote] = useState(order?.note || "");
+    const [sourceId, setSourceId] = useState<number>(order?.aggregator_id || 0);
     const [ourPercent, setOurPercent] = useState(order?.our_percent || 0);
-    const [sourceId, setSourceId] = useState(order?.source_id || 1);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!sourceId || !problemId || !workVolume.trim() || !address.trim() || !clientName.trim()) {
+            return;
+        }
+
+        const scheduled_at = date && time ? `${date}T${time}` : undefined;
+        const filteredPhones = phones.filter(phone => phone.trim() !== "");
+
         onSave({
-            source_id: sourceId,
+            aggregator_id: sourceId,
+            problem_id: problemId,
             our_percent: ourPercent,
-            client_name: clientName,
-            phones,
-            address,
-            title,
-            problem,
-            scheduled_at: scheduledAt,
+            client_name: clientName.trim(),
+            phones: filteredPhones,
+            address: address.trim(),
+            work_volume: workVolume.trim(),
+            scheduled_at,
+            note: note.trim() || "",
+            price: Number(price) > 0 ? String(price) : "",
         });
     };
 
+    const addPhone = () => {
+        setPhones([...phones, ""]);
+    };
+
+    const updatePhone = (index: number, value: string) => {
+        const newPhones = [...phones];
+        newPhones[index] = value;
+        setPhones(newPhones);
+    };
+
+    const removePhone = (index: number) => {
+        if (phones.length > 1) {
+            const newPhones = phones.filter((_, i) => i !== index);
+            setPhones(newPhones);
+        }
+    };
+
+    const isFormValid =
+        sourceId > 0 &&
+        problemId > 0 &&
+        workVolume.trim() !== "" &&
+        address.trim() !== "" &&
+        clientName.trim() !== "" &&
+        phones.some(phone => phone.trim() !== "");
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     return (
-        <form
+        <Paper
+            elevation={4}
+            sx={{
+                maxWidth: 600,
+                mx: "auto",
+                p: 3,
+                borderRadius: 3,
+            }}
+            component="form"
             onSubmit={handleSubmit}
-            className="card shadow-lg p-4 rounded-3 w-[450px] mx-auto"
         >
-            <h3 className="card-title mb-4 text-lg fw-bold text-center">
+            <Typography variant="h6" textAlign="center" mb={3}>
                 {order ? "✏️ Редактировать заказ" : "🆕 Новый заказ"}
-            </h3>
+            </Typography>
 
-            {/* Имя клиента */}
-            <div className="mb-3">
-                <label className="form-label fw-semibold">Имя клиента</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Введите имя клиента"
-                    value={clientName}
-                    onChange={(e) => setClientName(e.target.value)}
-                />
-            </div>
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    Ошибка загрузки справочников: {error}
+                </Alert>
+            )}
 
-            {/* Телефоны */}
-            <div className="mb-3">
-                <label className="form-label fw-semibold">Телефоны</label>
-                {phones.map((p, i) => (
-                    <input
-                        key={i}
-                        type="text"
-                        className="form-control mb-2"
-                        placeholder={`Телефон ${i + 1}`}
-                        value={p}
-                        onChange={(e) => {
-                            const newPhones = [...phones];
-                            newPhones[i] = e.target.value;
-                            setPhones(newPhones);
-                        }}
-                    />
-                ))}
-                <button
-                    type="button"
-                    onClick={() => setPhones([...phones, ""])}
-                    className="btn btn-link text-blue d-flex align-items-center gap-1 ps-0"
-                >
-                    <IconPlus size={16} /> Добавить телефон
-                </button>
-            </div>
+            <Stack spacing={3}>
+                {/* Основная информация */}
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                        Основная информация
+                    </Typography>
+                    <Stack spacing={2}>
+                        {/* Способ обращения */}
+                        <TextField
+                            label="Способ обращения *"
+                            select
+                            value={sourceId}
+                            onChange={(e) => setSourceId(Number(e.target.value))}
+                            fullWidth
+                            error={!sourceId}
+                            helperText={!sourceId ? "Выберите способ обращения" : ""}
+                        >
+                            <MenuItem value={0}>Выберите способ обращения</MenuItem>
+                            {sources.map((source) => (
+                                <MenuItem key={source.id} value={source.id}>
+                                    {source.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
 
-            {/* Адрес */}
-            <div className="mb-3">
-                <label className="form-label fw-semibold">Адрес</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Введите адрес"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                />
-            </div>
+                        {/* Проблема */}
+                        <TextField
+                            label="Проблема *"
+                            select
+                            value={problemId}
+                            onChange={(e) => setProblemId(Number(e.target.value))}
+                            fullWidth
+                            error={!problemId}
+                            helperText={!problemId ? "Выберите проблему" : ""}
+                        >
+                            <MenuItem value={0}>Выберите проблему</MenuItem>
+                            {problems.map((problem) => (
+                                <MenuItem key={problem.id} value={problem.id}>
+                                    {problem.name}
+                                </MenuItem>
+                            ))}
+                        </TextField>
 
-            {/* Проблематика */}
-            <div className="mb-3">
-                <label className="form-label fw-semibold">Проблематика</label>
-                <textarea
-                    className="form-control"
-                    placeholder="Опишите проблему"
-                    value={problem}
-                    onChange={(e) => setProblem(e.target.value)}
-                    rows={2}
-                />
-            </div>
+                        {/* Объем работ */}
+                        <TextField
+                            label="Объём работ *"
+                            value={workVolume}
+                            onChange={(e) => setWorkVolume(e.target.value)}
+                            fullWidth
+                            error={!workVolume.trim()}
+                            helperText={!workVolume.trim() ? "Введите объём работ" : ""}
+                        />
+                    </Stack>
+                </Box>
 
-            {/* Заголовок */}
-            <div className="mb-3">
-                <label className="form-label fw-semibold">Заголовок</label>
-                <input
-                    type="text"
-                    className="form-control"
-                    placeholder="Введите заголовок"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-            </div>
+                <Divider />
 
-            {/* Дата */}
-            <div className="mb-3">
-                <label className="form-label fw-semibold">Дата и время</label>
-                <input
-                    type="datetime-local"
-                    className="form-control"
-                    value={scheduledAt}
-                    onChange={(e) => setScheduledAt(e.target.value)}
-                />
-            </div>
+                {/* Клиент и контакты */}
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                        Информация о клиенте
+                    </Typography>
+                    <Stack spacing={2}>
+                        {/* Имя клиента */}
+                        <TextField
+                            label="Имя клиента *"
+                            value={clientName}
+                            onChange={(e) => setClientName(e.target.value)}
+                            fullWidth
+                            error={!clientName.trim()}
+                            helperText={!clientName.trim() ? "Введите имя клиента" : ""}
+                        />
 
-            {/* Наш процент */}
-            <div className="mb-3">
-                <label className="form-label fw-semibold">Наш %</label>
-                <input
-                    type="number"
-                    className="form-control"
-                    placeholder="Процент"
-                    value={ourPercent}
-                    onChange={(e) => setOurPercent(Number(e.target.value))}
-                />
-            </div>
+                        {/* Телефоны */}
+                        <Box>
+                            <Typography variant="subtitle2" mb={1}>
+                                Телефоны *
+                            </Typography>
+                            {phones.map((phone, index) => (
+                                <Stack key={index} direction="row" spacing={1} alignItems="center" mb={1}>
+                                    <TextField
+                                        label={`Телефон ${index + 1}`}
+                                        value={phone}
+                                        onChange={(e) => updatePhone(index, e.target.value)}
+                                        fullWidth
+                                        type="tel"
+                                        error={phones.length === 1 && !phone.trim()}
+                                        helperText={phones.length === 1 && !phone.trim() ? "Введите хотя бы один телефон" : ""}
+                                    />
+                                    {phones.length > 1 && (
+                                        <IconButton
+                                            onClick={() => removePhone(index)}
+                                            color="error"
+                                            size="small"
+                                        >
+                                            <Delete />
+                                        </IconButton>
+                                    )}
+                                </Stack>
+                            ))}
+                            <Button
+                                startIcon={<Add />}
+                                onClick={addPhone}
+                                sx={{ mt: 1 }}
+                                size="small"
+                                variant="outlined"
+                            >
+                                Добавить телефон
+                            </Button>
+                        </Box>
 
-            {/* Источник */}
-            <div className="mb-4">
-                <label className="form-label fw-semibold">Источник</label>
-                <select
-                    className="form-select"
-                    value={sourceId}
-                    onChange={(e) => setSourceId(Number(e.target.value))}
-                >
-                    <option value={1}>Сайт</option>
-                    <option value={2}>Телеграм</option>
-                    <option value={3}>Instagram</option>
-                    <option value={4}>Другое</option>
-                </select>
-            </div>
+                        {/* Адрес */}
+                        <TextField
+                            label="Адрес *"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            fullWidth
+                            multiline
+                            minRows={2}
+                            error={!address.trim()}
+                            helperText={!address.trim() ? "Введите адрес" : ""}
+                        />
+                    </Stack>
+                </Box>
 
-            {/* Кнопки */}
-            <div className="d-flex justify-content-end gap-2">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="btn btn-light d-flex align-items-center gap-1"
-                >
-                    <IconX size={16} /> Отмена
-                </button>
-                <button
-                    type="submit"
-                    className="btn btn-primary d-flex align-items-center gap-1"
-                >
-                    <IconDeviceFloppy size={16} />{" "}
-                    {order ? "Сохранить" : "Создать"}
-                </button>
-            </div>
-        </form>
+                <Divider />
+
+                {/* Детали заказа */}
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                        Детали заказа
+                    </Typography>
+                    <Stack spacing={2}>
+                        {/* Дата и время */}
+                        <Stack direction="row" spacing={2}>
+                            <TextField
+                                label="Дата выполнения"
+                                type="date"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                                InputLabelProps={{ shrink: true }}
+                                fullWidth
+                            />
+                            <TextField
+                                label="Время выполнения"
+                                type="time"
+                                value={time}
+                                onChange={(e) => setTime(e.target.value)}
+                                InputLabelProps={{ shrink: true }}
+                                fullWidth
+                            />
+                        </Stack>
+
+                        {/* Цена и процент */}
+                        <Stack direction="row" spacing={2}>
+                            <TextField
+                                label="Цена, руб"
+                                type="number"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                onBlur={() => setPrice(String(price))}
+                                fullWidth
+                                inputProps={{ min: 0 }}
+                            />
+                            <TextField
+                                label="Наш процент, %"
+                                type="number"
+                                value={ourPercent}
+                                onChange={(e) => {
+                                    let val = Number(e.target.value);
+                                    if (val > 100) val = 100;
+                                    if (val < 0) val = 0;
+                                    setOurPercent(val);
+                                }}
+                                onBlur={() => setOurPercent(Number(ourPercent))}
+                                fullWidth
+                                inputProps={{ min: 0, max: 100 }}
+                            />
+                        </Stack>
+
+                        {/* Примечание */}
+                        <TextField
+                            label="Примечание"
+                            multiline
+                            minRows={3}
+                            value={note}
+                            onChange={(e) => setNote(e.target.value)}
+                            fullWidth
+                            placeholder="Дополнительная информация о заказе..."
+                        />
+                    </Stack>
+                </Box>
+
+                <Divider />
+
+                {/* Кнопки действий */}
+                <Stack direction="row" spacing={2} justifyContent="flex-end">
+                    <Button
+                        variant="outlined"
+                        color="inherit"
+                        startIcon={<Close />}
+                        onClick={onCancel}
+                        size="large"
+                    >
+                        Отмена
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        startIcon={<Save />}
+                        type="submit"
+                        disabled={!isFormValid}
+                        size="large"
+                    >
+                        {order ? "Сохранить изменения" : "Создать заказ"}
+                    </Button>
+                </Stack>
+
+                {/* Подсказка по обязательным полям */}
+                <Typography variant="caption" color="text.secondary" textAlign="center">
+                    * - обязательные поля
+                </Typography>
+            </Stack>
+        </Paper>
     );
 };
 

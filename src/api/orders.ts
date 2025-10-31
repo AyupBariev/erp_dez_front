@@ -13,16 +13,19 @@ export type OrderStatus =
 export interface Order {
     id: number;
     erp_number: number;
-    source_id: number;
+    aggregator_id: number;
+    aggregator: object;
+    problem_id: number;
+    problem: Problem | null;
+    price: string;
     our_percent: number;
     client_name: string;
     phones: string[];
     address: string;
-    title: string;
-    problem: string;
+    note: string;
+    work_volume: string;
     scheduled_at?: string;
     engineer_id?: number;
-    admin_id?: number;
     status: OrderStatus;
     is_repeat?: boolean;
     created_at?: string;
@@ -30,16 +33,22 @@ export interface Order {
 }
 
 export interface CreateOrderRequest {
-    source_id: number;
+    aggregator_id: number;
+    problem_id: number;
+    price: string;
     our_percent: number;
     client_name: string;
     phones: string[];
     address: string;
-    title: string;
-    problem: string;
+    work_volume: string;
+    note?: string;
     scheduled_at?: string;
     engineer_id?: number;
-    admin_id?: number;
+}
+
+export interface Problem {
+    id: number;
+    name: string;
 }
 
 export async function getOrders(date?: string): Promise<Order[]> {

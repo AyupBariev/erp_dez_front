@@ -1,5 +1,6 @@
 import React from "react";
-import OrdersList from "./OrdersList";
+import { Tabs, Tab, Box } from "@mui/material";
+import OrdersGrid from "./OrdersGrid"; // переименуем в Grid
 import type { Order } from "../../api/orders";
 
 interface Props {
@@ -10,61 +11,66 @@ interface Props {
 }
 
 const tabs = [
+    { key: "new", label: "Обращения" },
     { key: "thinking", label: "Клиент думает" },
-    { key: "new", label: "Новые (обращения)" },
-    { key: "in_proccess", label: "В работе (логист/инженер)" },
-    { key: "closed_finally", label: "Закрытые" },
+    { key: "in_proccess", label: "Логист выдал" },
+    { key: "working", label: "Инженер принял" },
+    { key: "closed_without_repeat", label: "На рассмотрении" },
+    { key: "closed_finally", label: "Успешно закрытые" },
+    { key: "canceled", label: "Отмененные" },
 ];
 
 const OrdersTabs: React.FC<Props> = ({ orders, activeTab, onTabChange, onEdit }) => {
     let filtered: Order[] = [];
 
     switch (activeTab) {
-        case "thinking":
-            filtered = orders.filter((o) => o.status === "thinking");
-            break;
         case "new":
             filtered = orders.filter((o) => o.status === "new");
             break;
+        case "thinking":
+            filtered = orders.filter((o) => o.status === "thinking");
+            break;
         case "in_proccess":
-            filtered = orders.filter((o) => ["in_proccess", "working"].includes(o.status));
+            filtered = orders.filter((o) => o.status === "in_proccess");
+            break;
+        case "working":
+            filtered = orders.filter((o) => o.status === "working");
+            break;
+        case "closed_without_repeat":
+            filtered = orders.filter((o) => o.status === "closed_without_repeat");
             break;
         case "closed_finally":
-            filtered = orders.filter((o) =>
-                ["closed_without_repeat", "closed_finally", "canceled"].includes(o.status)
-            );
+            filtered = orders.filter((o) => o.status === "closed_finally");
+            break;
+        case "canceled":
+            filtered = orders.filter((o) => o.status === "canceled");
             break;
     }
 
-    // Сортировка
+    // Сортировка: новые сверху для активных, старые сверху для закрытых
     filtered.sort((a, b) => {
         const aTime = new Date(a.created_at ?? "").getTime();
         const bTime = new Date(b.created_at ?? "").getTime();
-
-        if (activeTab === "in_proccess") {
-            return aTime - bTime; // от старых к новым
-        }
-        return bTime - aTime; // от новых к старым
+        const isClosedTab = ["closed_without_repeat", "closed_finally", "canceled"].includes(activeTab);
+        return isClosedTab ? bTime - aTime : aTime - bTime;
     });
 
     return (
-        <div>
-            <div className="flex gap-3 mb-4">
+        <Box>
+            <Tabs
+                value={activeTab}
+                onChange={(_, v) => onTabChange(v)}
+                sx={{ mb: 2 }}
+                variant="scrollable"
+                scrollButtons="auto"
+            >
                 {tabs.map((t) => (
-                    <button
-                        key={t.key}
-                        onClick={() => onTabChange(t.key)}
-                        className={`px-4 py-2 rounded-lg ${
-                            activeTab === t.key ? "bg-blue-600 text-white" : "bg-gray-200"
-                        }`}
-                    >
-                        {t.label}
-                    </button>
+                    <Tab key={t.key} label={t.label} value={t.key} />
                 ))}
-            </div>
+            </Tabs>
 
-            <OrdersList orders={filtered} onEdit={onEdit} />
-        </div>
+            <OrdersGrid orders={filtered} onEdit={onEdit} />
+        </Box>
     );
 };
 

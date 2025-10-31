@@ -1,10 +1,12 @@
+import {EngineerMotivationTable} from "../../components/engineerMotivations/EngineerMotivationTable.tsx";
+import {Box} from "@mui/material";
+
+
 export default function Dashboard() {
+
     return (
-        <div className="page-wrapper">
-            <div className="container-fluid">
-                <h1 className="page-title">Добро пожаловать в ERP</h1>
-                <p>Это главная панель.</p>
-            </div>
-        </div>
+        <Box>
+            <EngineerMotivationTable/>
+        </Box>
     );
 }

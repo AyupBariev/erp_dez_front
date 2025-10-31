@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
+import { Box, Button, Typography } from "@mui/material";
 import OrdersTabs from "./OrdersTabs";
-import type { Order } from "../../api/orders";
+import OrderForm from "./OrderForm";
 import { getOrders } from "../../api/orders";
-import OrderForm from "./OrderForm.tsx";
+import type { Order } from "../../api/orders";
 
 const OrdersManagement: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -34,16 +35,13 @@ const OrdersManagement: React.FC = () => {
     };
 
     return (
-        <div className="p-4">
-            <div className="flex justify-between mb-4">
-                <h2 className="text-xl font-semibold">Заказы</h2>
-                <button
-                    onClick={handleCreate}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg"
-                >
+        <Box p={3}>
+            <Box display="flex" justifyContent="space-between" mb={3}>
+                <Typography variant="h5">Заказы</Typography>
+                <Button variant="contained" onClick={handleCreate}>
                     Создать заказ
-                </button>
-            </div>
+                </Button>
+            </Box>
 
             <OrdersTabs
                 orders={orders}
@@ -59,7 +57,7 @@ const OrdersManagement: React.FC = () => {
                     onSave={fetchOrders}
                 />
             )}
-        </div>
+        </Box>
     );
 };
 

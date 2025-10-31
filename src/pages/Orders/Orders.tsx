@@ -1,10 +1,27 @@
 import React, { useEffect, useState } from "react";
+import {
+    Box,
+    Button,
+    Card,
+    CircularProgress,
+    Dialog,
+    DialogContent,
+    DialogTitle,
+    IconButton,
+    Snackbar,
+    Alert,
+    Typography,
+    Stack,
+} from "@mui/material";
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import AddIcon from "@mui/icons-material/Add";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import CloseIcon from "@mui/icons-material/Close";
 import { getOrders, createOrder } from "../../api/orders";
 import type { Order, CreateOrderRequest } from "../../api/orders";
 import OrdersTabs from "../../components/orders/OrdersTabs";
 import OrderForm from "../../components/orders/OrderForm";
-import ShareToast from "../../components/share/ShareToast";
-import { IconPlus, IconReload } from "@tabler/icons-react";
 
 const Orders: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
@@ -12,17 +29,16 @@ const Orders: React.FC = () => {
     const [showModal, setShowModal] = useState(false);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(false);
-    const [toast, setToast] = useState({
-        show: false,
-        success: true,
-        message: "",
-    });
+    const [toast, setToast] = useState({ show: false, success: true, message: "" });
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
 
     // --- Загрузка заказов ---
     const loadOrders = async () => {
         try {
             setLoading(true);
-            const data = await getOrders();
+            const dateString = selectedDate ? selectedDate.toISOString().split('T')[0] : undefined;
+            const data = await getOrders(dateString); //
             setOrders(data);
         } catch (err) {
             console.error("Ошибка при загрузке заказов:", err);
@@ -34,7 +50,7 @@ const Orders: React.FC = () => {
 
     useEffect(() => {
         loadOrders();
-    }, []);
+    }, [selectedDate]); // перезагружаем при смене даты
 
     // --- Создание нового заказа ---
     const handleCreate = () => {
@@ -42,7 +58,7 @@ const Orders: React.FC = () => {
         setShowModal(true);
     };
 
-    // --- Редактирование существующего заказа ---
+    // --- Редактирование ---
     const handleEdit = (order: Order) => {
         setEditingOrder(order);
         setShowModal(true);
@@ -62,23 +78,35 @@ const Orders: React.FC = () => {
     };
 
     return (
-        <div className="p-5">
-            <div className="d-flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold flex items-center gap-2">
-                    <IconReload size={22} className="text-blue-600"/> Заказы
-                </h2>
+        <Box sx={{ p: 3 }}>
+            {/* Заголовок */}
+            <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                    <RefreshIcon color="primary" />
+                    <Typography variant="h5" fontWeight={600}>Заказы</Typography>
+                </Stack>
 
-                <button
-                    onClick={handleCreate}
-                    className="btn btn-success d-flex align-items-center gap-2"
-                >
-                    <IconPlus size={18}/> Создать заказ
-                </button>
-            </div>
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <DatePicker
+                            label="Дата"
+                            value={selectedDate}
+                            onChange={(newDate: Date | null) => setSelectedDate(newDate)}
+                        />
+                    </LocalizationProvider>
 
-            <div className="card p-4 shadow-sm">
+                    <Button variant="contained" startIcon={<AddIcon />} color="success" onClick={handleCreate}>
+                        Создать заказ
+                    </Button>
+                </Stack>
+            </Stack>
+
+            {/* Основная карточка */}
+            <Card sx={{ p: 2, borderRadius: 3, boxShadow: 2 }}>
                 {loading ? (
-                    <div className="text-center text-gray-500">Загрузка заказов...</div>
+                    <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", py: 6 }}>
+                        <CircularProgress color="primary" />
+                    </Box>
                 ) : (
                     <OrdersTabs
                         orders={orders}
@@ -87,42 +115,34 @@ const Orders: React.FC = () => {
                         onEdit={handleEdit}
                     />
                 )}
-            </div>
+            </Card>
 
-            {/* Модалка создания/редактирования */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center">
-                    <div className="bg-white p-6 rounded-xl shadow-lg w-[600px] max-h-[80vh] overflow-auto">
-                        <div className="flex justify-between mb-3">
-                            <h3 className="text-xl font-semibold">
-                                {editingOrder
-                                    ? `Редактировать заказ №${editingOrder.erp_number}`
-                                    : "Создать заказ"}
-                            </h3>
-                            <button
-                                onClick={() => setShowModal(false)}
-                                className="text-gray-500 hover:text-black"
-                            >
-                                ✕
-                            </button>
-                        </div>
+            {/* Диалог создания/редактирования */}
+            <Dialog open={showModal} onClose={() => setShowModal(false)} fullWidth maxWidth="md">
+                <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Typography variant="h6" component="div">
+                        {editingOrder
+                            ? `Редактировать заказ №${editingOrder.erp_number}`
+                            : "Создать заказ"}
+                    </Typography>
+                    <IconButton onClick={() => setShowModal(false)}><CloseIcon /></IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <OrderForm
+                        order={editingOrder}
+                        onSave={handleSave}
+                        onCancel={() => setShowModal(false)}
+                    />
+                </DialogContent>
+            </Dialog>
 
-                        <OrderForm
-                            order={editingOrder}
-                            onSave={handleSave}
-                            onCancel={() => setShowModal(false)}
-                        />
-                    </div>
-                </div>
-            )}
-
-            <ShareToast
-                show={toast.show}
-                success={toast.success}
-                message={toast.message}
-                onClose={() => setToast({...toast, show: false})}
-            />
-        </div>
+            {/* Уведомление */}
+            <Snackbar open={toast.show} autoHideDuration={4000} onClose={() => setToast({ ...toast, show: false })} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+                <Alert onClose={() => setToast({ ...toast, show: false })} severity={toast.success ? "success" : "error"} sx={{ width: "100%" }}>
+                    {toast.message}
+                </Alert>
+            </Snackbar>
+        </Box>
     );
 };
 

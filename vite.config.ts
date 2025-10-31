@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    optimizeDeps: {
+      include: ['date-fns'],
+    },
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "src"),

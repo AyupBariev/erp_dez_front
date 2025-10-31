@@ -7,6 +7,7 @@ import Orders from "../pages/Orders/Orders";
 import AssignOrders from "../pages/AssignOrders/AssignOrders";
 import Layout from "../components/layout/Layout";
 import SIManagement from "../pages/SIManagement/SIManagement.tsx";
+import EngineerSubmitReport from "../pages/EngineerSubmitReport/EngineerSubmitReport.tsx";
 
 export default function AppRouter() {
     const { isAuthenticated } = useAuth();
@@ -28,6 +29,7 @@ export default function AppRouter() {
             ) : (
                 <Route path="*" element={<Navigate to="/login" />} />
             )}
+            <Route path="/reports/submit" element={<EngineerSubmitReport />} />
         </Routes>
     );
 }
