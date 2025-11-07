@@ -18,27 +18,35 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import CloseIcon from "@mui/icons-material/Close";
-import { getOrders, createOrder } from "../../api/orders";
+import { getOrders, createOrder, updateOrder } from "../../api/orders";
 import type { Order, CreateOrderRequest } from "../../api/orders";
 import OrdersTabs from "../../components/orders/OrdersTabs";
 import OrderForm from "../../components/orders/OrderForm";
 
 const Orders: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [activeTab, setActiveTab] = useState<string>("new");
+    const [activeTab, setActiveTab] = useState<string>("all");
     const [showModal, setShowModal] = useState(false);
     const [editingOrder, setEditingOrder] = useState<Order | null>(null);
     const [loading, setLoading] = useState(false);
+    const [formLoading, setFormLoading] = useState(false); // Отдельное состояние для формы
     const [toast, setToast] = useState({ show: false, success: true, message: "" });
-    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
 
-
-    // --- Загрузка заказов ---
     const loadOrders = async () => {
         try {
             setLoading(true);
-            const dateString = selectedDate ? selectedDate.toISOString().split('T')[0] : undefined;
-            const data = await getOrders(dateString); //
+            let dateString: string | undefined;
+
+            if (selectedDate) {
+                // Создаем дату в локальной временной зоне
+                const year = selectedDate.getFullYear();
+                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                const day = String(selectedDate.getDate()).padStart(2, '0');
+                dateString = `${year}-${month}-${day}`;
+            }
+
+            const data = await getOrders(dateString);
             setOrders(data);
         } catch (err) {
             console.error("Ошибка при загрузке заказов:", err);
@@ -64,21 +72,38 @@ const Orders: React.FC = () => {
         setShowModal(true);
     };
 
-    // --- Сохранение заказа ---
-    const handleSave = async (formData: CreateOrderRequest) => {
+    // --- Универсальное сохранение (создание + обновление) ---
+    const handleSave = async (formData: CreateOrderRequest, orderNumber?: number) => {
         try {
-            await createOrder(formData);
+            setFormLoading(true);
+
+            if (orderNumber) {
+                // Обновление существующего заказа
+                await updateOrder(orderNumber, formData);
+                setToast({ show: true, success: true, message: "Заказ успешно обновлён!" });
+            } else {
+                // Создание нового заказа
+                await createOrder(formData);
+                setToast({ show: true, success: true, message: "Заказ успешно создан!" });
+            }
+
             setShowModal(false);
             await loadOrders();
-            setToast({ show: true, success: true, message: "Заказ успешно сохранён!" });
         } catch (err) {
             console.error("Ошибка при сохранении заказа:", err);
             setToast({ show: true, success: false, message: "Ошибка при сохранении заказа" });
+        } finally {
+            setFormLoading(false);
         }
     };
 
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setEditingOrder(null);
+    };
+
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 1 }}>
             {/* Заголовок */}
             <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
                 <Stack direction="row" alignItems="center" spacing={1}>
@@ -118,20 +143,23 @@ const Orders: React.FC = () => {
             </Card>
 
             {/* Диалог создания/редактирования */}
-            <Dialog open={showModal} onClose={() => setShowModal(false)} fullWidth maxWidth="md">
+            <Dialog open={showModal} onClose={handleCloseModal} fullWidth maxWidth="md">
                 <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <Typography variant="h6" component="div">
                         {editingOrder
                             ? `Редактировать заказ №${editingOrder.erp_number}`
                             : "Создать заказ"}
                     </Typography>
-                    <IconButton onClick={() => setShowModal(false)}><CloseIcon /></IconButton>
+                    <IconButton onClick={handleCloseModal} disabled={formLoading}>
+                        <CloseIcon />
+                    </IconButton>
                 </DialogTitle>
                 <DialogContent dividers>
                     <OrderForm
                         order={editingOrder}
                         onSave={handleSave}
-                        onCancel={() => setShowModal(false)}
+                        onCancel={handleCloseModal}
+                        formLoading={formLoading}
                     />
                 </DialogContent>
             </Dialog>

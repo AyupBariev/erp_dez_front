@@ -2,8 +2,7 @@ import { apiFetch } from "./http";
 import type {Engineer} from "./engineer.ts";
 
 export type OrderStatus =
-    | "new"                  // обращение
-    | "thinking"             // клиент думает
+    | "new"                  // новые
     | "in_proccess"          // логист выдал инженеру
     | "working"              // инженер принял
     | "closed_without_repeat"// заказ отчитан, на рассмотрении
@@ -28,6 +27,9 @@ export interface Order {
     engineer_id?: number;
     status: OrderStatus;
     is_repeat?: boolean;
+    repeat_id?: number;
+    repeat_description?: string;
+    repeated_by?: string;
     created_at?: string;
     engineer?: Engineer;
 }
@@ -44,6 +46,7 @@ export interface CreateOrderRequest {
     note?: string;
     scheduled_at?: string;
     engineer_id?: number;
+    status: OrderStatus;
 }
 
 export interface Problem {
@@ -55,18 +58,29 @@ export async function getOrders(date?: string): Promise<Order[]> {
     return apiFetch(`/api/orders?date=${date}`);
 }
 
-export async function assignOrder(orderId: number, engineerId: number) {
-    return apiFetch(`/api/orders/assign-order`, {
+export async function assignOrder(orderNumber: number, engineerId: number) {
+    return apiFetch(`/api/orders/assign`, {
         method: "POST",
-        body: JSON.stringify({ engineer_id: engineerId, order_number: orderId }),
+        body: JSON.stringify({ engineer_id: engineerId, erp_number: orderNumber }),
     });
 }
 
-export async function cancelOrder(orderId: number) {
-    return apiFetch(`/api/orders/${orderId}/cancel`, {
+export async function unAssignOrder(orderNumber: number) {
+    return apiFetch(`/api/orders/unassign`, {
         method: "POST",
+        body: JSON.stringify({ erp_number: orderNumber }),
     });
 }
+
+export const cancelOrder = async (orderNumber: number): Promise<Order> => {
+    return apiFetch(`/api/orders/${orderNumber}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({status: 'canceled'}),
+    });
+};
 
 export async function createOrder(payload: CreateOrderRequest) {
     return apiFetch("/api/orders", {
@@ -74,3 +88,13 @@ export async function createOrder(payload: CreateOrderRequest) {
         body: JSON.stringify(payload),
     });
 }
+
+export const updateOrder = async (orderNumber: number, data: CreateOrderRequest): Promise<Order> => {
+    return apiFetch(`/api/orders/${orderNumber}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
+};

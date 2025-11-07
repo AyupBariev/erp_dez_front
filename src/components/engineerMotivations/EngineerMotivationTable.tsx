@@ -24,21 +24,20 @@ export const EngineerMotivationTable: React.FC = () => {
                 </div>
             ),
         },
-        { field: "reportsCount", headerName: "Отчеты", type: "number", flex: 1, minWidth: 100 },
-        { field: "primaryOrdersCount", headerName: "Первичка", type: "number", flex: 1, minWidth: 100, cellClassName: "highlight-green" },
-        { field: "repeatOrdersCount", headerName: "Повторы", type: "number", flex: 1, minWidth: 100 },
-        { field: "ordersTotalAmount", headerName: "Сумма первичных", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
-        { field: "repeatOrdersAmount", headerName: "Сумма повторов", type: "number", flex: 1, minWidth: 150 },
-        { field: "grossProfit", headerName: "Валовая прибыль", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
-        { field: "averageCheck", headerName: "Средний чек", type: "number", flex: 1, minWidth: 120 },
-        { field: "motivationPercent", headerName: "Процент мотивации", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
-        { field: "totalMotivation", headerName: "Итог мотивации", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
-        { field: "confirmedByAdmin", headerName: "Подтверждено", type: "boolean", flex: 1, minWidth: 120 },
+        { field: "primaryOrdersCount", headerName: "Количество выданных заказов за месяц", type: "number", flex: 1, minWidth: 100, cellClassName: "highlight-green" },
+        { field: "repeatOrdersCount", headerName: "Количеств повторов за месяц", type: "number", flex: 1, minWidth: 100 },
+        { field: "reportsCount", headerName: "Количество отчетов за месяц", type: "number", flex: 1, minWidth: 100, cellClassName: "highlight-green" },
+        { field: "ordersTotalAmount", headerName: "Прибыль с первичных", type: "number", flex: 1, minWidth: 150 },
+        { field: "repeatOrdersAmount", headerName: "Прибыль с повторов", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
+        { field: "grossProfit", headerName: "Валовая прибыль", type: "number", flex: 1, minWidth: 150 },
+        { field: "averageCheck", headerName: "Средний чек", type: "number", flex: 1, minWidth: 120, cellClassName: "highlight-green" },
+        { field: "motivationPercent", headerName: "Процент мотивации", type: "number", flex: 1, minWidth: 150 },
+        { field: "totalMotivation", headerName: "Сумма выплат", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
     ];
 
     return (
         <Box sx={{ width: "100%", overflowX: "auto" }}>
-            <Box sx={{ mb: 2, display: "flex", gap: 2 }}>
+            <Box sx={{ my: 2, display: "flex", gap: 2 }}>
                 <TextField
                     type="month"
                     label="Месяц"

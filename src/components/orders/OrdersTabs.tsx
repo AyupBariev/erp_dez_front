@@ -11,8 +11,8 @@ interface Props {
 }
 
 const tabs = [
-    { key: "new", label: "Обращения" },
-    { key: "thinking", label: "Клиент думает" },
+    { key: "all", label: "Все" },
+    { key: "new", label: "Новые" },
     { key: "in_proccess", label: "Логист выдал" },
     { key: "working", label: "Инженер принял" },
     { key: "closed_without_repeat", label: "На рассмотрении" },
@@ -24,11 +24,11 @@ const OrdersTabs: React.FC<Props> = ({ orders, activeTab, onTabChange, onEdit })
     let filtered: Order[] = [];
 
     switch (activeTab) {
+        case "all":
+            filtered = orders;
+            break;
         case "new":
             filtered = orders.filter((o) => o.status === "new");
-            break;
-        case "thinking":
-            filtered = orders.filter((o) => o.status === "thinking");
             break;
         case "in_proccess":
             filtered = orders.filter((o) => o.status === "in_proccess");

@@ -1,24 +1,24 @@
 import { useState, useEffect } from "react";
 import Sidebar from "./Sidebar";
-import Navbar from "./Navbar";
 import { Outlet } from "react-router-dom";
+import { Box, IconButton, useTheme, useMediaQuery } from "@mui/material";
+import { IconMenu2 } from "@tabler/icons-react";
 
 export default function Layout() {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
+    const theme = useTheme();
+    const isDesktop = useMediaQuery(theme.breakpoints.up('md'));
 
     useEffect(() => {
-        const handleResize = () => {
-            setIsDesktop(window.innerWidth >= 768); // md breakpoint
-        };
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
+        if (isDesktop && isMobileMenuOpen) {
+            setMobileMenuOpen(false);
+        }
+    }, [isDesktop, isMobileMenuOpen]);
 
     return (
-        <div className="page d-flex">
-            {/* Sidebar only on desktop */}
+        <Box sx={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+            {/* Sidebar для десктопа */}
             {isDesktop && (
                 <Sidebar
                     isOpen={isSidebarOpen}
@@ -26,40 +26,48 @@ export default function Layout() {
                 />
             )}
 
-            {/* Контент */}
-            <div
-                className="page-wrapper flex-grow-1"
-                style={{
-                    marginLeft: isDesktop ? (isSidebarOpen ? 220 : 60) : 0, // 👈 на мобилке всегда 0
-                    transition: "margin-left 0.3s",
+            {/* Основной контент */}
+            <Box
+                component="main"
+                sx={{
+                    flexGrow: 1,
+                    marginLeft: isDesktop ? (isSidebarOpen ? '220px' : '60px') : 0,
+                    transition: theme.transitions.create('margin-left', {
+                        easing: theme.transitions.easing.sharp,
+                        duration: theme.transitions.duration.enteringScreen,
+                    }),
+                    height: '100%',
+                    overflow: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
                 }}
             >
-                <Navbar onToggleMobileMenu={() => setMobileMenuOpen(true)} />
-
-                {/* Mobile sidebar (шторка сверху) */}
-                {!isDesktop && isMobileMenuOpen && (
-                    <div
-                        className="position-fixed top-0 start-0 w-100 bg-dark text-white shadow-lg"
-                        style={{ height: "100%", zIndex: 2000 }} // 👈 растягиваем на всю высоту
-                    >
-                        <div className="d-flex justify-content-between align-items-center p-2 border-bottom">
-                            <span>Меню</span>
-                            <button
-                                className="btn btn-sm btn-outline-light"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                ✕
-                            </button>
-                        </div>
-                        <Sidebar isMobile onToggle={() => setMobileMenuOpen(false)} />
-                    </div>
+                {/* Кнопка открытия мобильного меню */}
+                {!isDesktop && (
+                    <Box sx={{ p: 1, borderBottom: 1, borderColor: 'divider' }}>
+                        <IconButton
+                            onClick={() => setMobileMenuOpen(true)}
+                            size="small"
+                        >
+                            <IconMenu2 size={20} />
+                        </IconButton>
+                    </Box>
                 )}
 
+                {/* Мобильное меню */}
+                {!isDesktop && isMobileMenuOpen && (
+                    <Sidebar
+                        isMobile
+                        isOpen={true}
+                        onToggle={() => setMobileMenuOpen(false)}
+                    />
+                )}
 
-                <div className="page-body p-3">
+                {/* Контент страницы */}
+                <Box sx={{ flexGrow: 1 }}>
                     <Outlet />
-                </div>
-            </div>
-        </div>
+                </Box>
+            </Box>
+        </Box>
     );
 }

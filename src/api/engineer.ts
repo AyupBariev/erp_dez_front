@@ -8,7 +8,7 @@ export interface Engineer {
     phone?: string;
     telegram_id?: number;
     is_approved?: boolean;
-    is_working?: boolean;
+    is_working: boolean;
 }
 
 export interface CreateEngineerRequest {
@@ -36,5 +36,12 @@ export async function approveEngineer(engineerId: number) {
     return apiFetch("/api/engineers/accept-engineer", {
         method: "POST",
         body: JSON.stringify({ engineer_id: engineerId }),
+    });
+}
+
+export async function updateEngineerWorkingStatus(engineerId: number, isWorking: boolean): Promise<Engineer> {
+    return apiFetch(`/api/engineers/${engineerId}/working-status`, {
+        method: 'POST',
+        body: JSON.stringify({ is_working: isWorking }),
     });
 }

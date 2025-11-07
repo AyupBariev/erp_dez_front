@@ -7,7 +7,7 @@ import type { Order } from "../../api/orders";
 
 const OrdersManagement: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
-    const [activeTab, setActiveTab] = useState("thinking");
+    const [activeTab, setActiveTab] = useState("all");
     const [showForm, setShowForm] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 

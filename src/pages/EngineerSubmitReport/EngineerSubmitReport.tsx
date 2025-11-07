@@ -9,7 +9,7 @@ import {
     Switch,
     CircularProgress,
     Paper,
-    Grid,
+    Grid, InputLabel
 } from "@mui/material";
 import { getReportLinkInfo, submitReport } from "../../api/reports";
 
@@ -18,6 +18,7 @@ export default function EngineerSubmitReport() {
     const token = searchParams.get("token");
 
     const [order, setOrder] = useState<any>(null);
+    const [finishPrice, setFinishPrice] = useState("");
     const [isRepeat, setIsRepeat] = useState(false);
     const [note, setNote] = useState("");
     const [repeatDate, setRepeatDate] = useState("");
@@ -35,6 +36,12 @@ export default function EngineerSubmitReport() {
         }
     }, [token]);
 
+    useEffect(() => {
+        if (order) {
+            setFinishPrice(order.price || "");
+        }
+    }, [order]);
+
     const handleSubmit = async () => {
         try {
             setSubmitting(true);
@@ -46,6 +53,7 @@ export default function EngineerSubmitReport() {
 
             const payload = {
                 token: token!,
+                finish_price: finishPrice,
                 has_repeat: isRepeat,
                 repeat_date: fullRepeatDate,
                 repeat_note: note,
@@ -86,63 +94,82 @@ export default function EngineerSubmitReport() {
                     Клиент: <strong>{order.client_name}</strong>
                 </Typography>
                 <Typography variant="body1" gutterBottom>
-                    Адрес: {order.address}
+                    Адрес:  <strong>{order.address}</strong>
+                </Typography>
+                <Typography variant="body1" gutterBottom>
+                    Начальная цена: <strong>{order.price}</strong>
                 </Typography>
 
-                <FormControlLabel
-                    control={
-                        <Switch
-                            checked={isRepeat}
-                            onChange={(e) => setIsRepeat(e.target.checked)}
-                            color="primary"
-                            disabled={submitted}
-                        />
-                    }
-                    label="Назначен ли повтор?"
-                    sx={{ mt: 2 }}
-                />
+                <Box sx={{ paddingY: 3 }}>
+                    <InputLabel
+                        sx={{
+                            fontWeight: 700,
+                        }}
+                    >
+                        Взял с заказа:
+                    </InputLabel>
+                    <TextField
+                        className="form-control"
+                        value={finishPrice}
+                        onChange={(e) => setFinishPrice(e.target.value)}
+                        disabled={submitted}
+                        fullWidth
+                    />
 
-                {isRepeat && (
-                    <Grid container spacing={2} sx={{ mt: 1 }}>
-                        {/* Дата */}
-                        <Grid sx={{ flex: '0 0 50%' }}>
-                            <TextField
-                                label="Дата повтора"
-                                type="date"
-                                fullWidth
-                                value={repeatDate}
-                                onChange={(e) => setRepeatDate(e.target.value)}
-                                InputLabelProps={{ shrink: true }}
+                    <FormControlLabel
+                        control={
+                            <Switch
+                                checked={isRepeat}
+                                onChange={(e) => setIsRepeat(e.target.checked)}
+                                color="primary"
                                 disabled={submitted}
                             />
+                        }
+                        label="Назначен ли повтор?"
+                        sx={{ mt: 2 }}
+                    />
+
+                    {isRepeat && (
+                        <Grid container spacing={2} sx={{ mt: 1 }}>
+                            {/* Дата */}
+                            <Grid sx={{ flex: '0 0 50%' }}>
+                                <TextField
+                                    label="Дата повтора"
+                                    type="date"
+                                    fullWidth
+                                    value={repeatDate}
+                                    onChange={(e) => setRepeatDate(e.target.value)}
+                                    InputLabelProps={{ shrink: true }}
+                                    disabled={submitted}
+                                />
+                            </Grid>
+
+                            {/* Время */}
+                            <Grid sx={{ flex: '0 0 50%' }}>
+                                <TextField
+                                    label="Время повтора"
+                                    type="time"
+                                    fullWidth
+                                    value={repeatTime}
+                                    onChange={(e) => setRepeatTime(e.target.value)}
+                                    InputLabelProps={{ shrink: true }}
+                                    disabled={submitted}
+                                />
+                            </Grid>
                         </Grid>
+                    )}
 
-                        {/* Время */}
-                        <Grid sx={{ flex: '0 0 50%' }}>
-                            <TextField
-                                label="Время повтора"
-                                type="time"
-                                fullWidth
-                                value={repeatTime}
-                                onChange={(e) => setRepeatTime(e.target.value)}
-                                InputLabelProps={{ shrink: true }}
-                                disabled={submitted}
-                            />
-                        </Grid>
-                    </Grid>
-                )}
-
-                <TextField
-                    label="Примечание / описание"
-                    multiline
-                    rows={4}
-                    fullWidth
-                    value={note}
-                    onChange={(e) => setNote(e.target.value)}
-                    sx={{ mt: 2 }}
-                    disabled={submitted}
-                />
-
+                    <TextField
+                        label="Примечание / описание"
+                        multiline
+                        rows={4}
+                        fullWidth
+                        value={note}
+                        onChange={(e) => setNote(e.target.value)}
+                        sx={{ mt: 2 }}
+                        disabled={submitted}
+                    />
+                </Box>
                 <Button
                     variant="contained"
                     color={submitted ? "info" : "success"}

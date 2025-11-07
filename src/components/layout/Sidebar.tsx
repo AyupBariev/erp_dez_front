@@ -1,10 +1,24 @@
-import {NavLink, useNavigate} from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
     IconReport, IconTruck, IconPhone, IconRefresh,
     IconCash, IconUserDollar, IconChartBar, IconBus,
-    IconCalendar, IconUsers, IconChevronLeft, IconChevronRight, IconLogout
+    IconCalendar, IconUsers, IconChevronLeft, IconChevronRight,
+    IconLogout, IconX
 } from "@tabler/icons-react";
-import {useAuth} from "../../context/AuthContext.tsx";
+import { useAuth } from "../../context/AuthContext.tsx";
+import {
+    Box,
+    Drawer,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    IconButton,
+    Button,
+    Typography,
+    useTheme
+} from "@mui/material";
 
 type SidebarProps = {
     isOpen?: boolean;
@@ -13,104 +27,180 @@ type SidebarProps = {
 };
 
 export default function Sidebar({ isOpen = true, isMobile = false, onToggle }: SidebarProps) {
-    const linkClass = ({ isActive }: { isActive: boolean }) =>
-        `nav-link d-flex align-items-center text-white mb-1 p-2 rounded ${
-            isActive ? "bg-primary" : "text-white"
-        }`;
     const { logout } = useAuth();
     const navigate = useNavigate();
+    const theme = useTheme();
 
     function handleLogout() {
         logout();
         navigate("/login");
     }
 
-    return (
-        <aside
-            className={`bg-dark text-white h-100 d-flex flex-column ${isMobile ? "" : "position-fixed top-0"}`}
-            style={{
-                width: isMobile ? "100%" : isOpen ? 220 : 60,
-                transition: "all 0.3s",
-                overflowY: "auto",
-                zIndex: isMobile ? 0 : 1000,
+    const menuItems = [
+        { path: "/dashboard", icon: IconChartBar, label: "СВД" },
+        { path: "/reports", icon: IconReport, label: "Отчёты на кассу" },
+        { path: "/orders", icon: IconTruck, label: "Заказы" },
+        { path: "/calls", icon: IconPhone, label: "Записи звонков" },
+        { path: "/repeat-requests", icon: IconRefresh, label: "Запрос повтора" },
+        { path: "/payouts/aggregators", icon: IconCash, label: "Выплата агрегаторам" },
+        { path: "/payouts/si", icon: IconUserDollar, label: "Выплата СИ" },
+        { path: "/profit", icon: IconChartBar, label: "Наша прибыль" },
+        { path: "/assign-orders", icon: IconBus, label: "Маршрутка" },
+        { path: "/schedule", icon: IconCalendar, label: "График работы СИ" },
+        { path: "/si-management", icon: IconUsers, label: "Управление СИ" },
+    ];
+
+    const sidebarContent = (
+        <Box
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%',
+                backgroundColor: theme.palette.background.paper,
+                color: theme.palette.common.white,
+                background: 'linear-gradient(180deg, #2c3e50 0%, #34495e 100%)'
             }}
         >
-            {/* Toggle для десктопа */}
-            {!isMobile && (
-                <div className="d-flex justify-content-end p-2">
-                    <button className="btn btn-sm btn-outline-light" onClick={onToggle}>
-                        {isOpen ? <IconChevronLeft/> : <IconChevronRight/>}
-                    </button>
-                </div>
+            {/* Заголовок и кнопка закрытия для мобильных */}
+            {isMobile && (
+                <Box
+                    sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        p: 2,
+                        borderBottom: `1px solid ${theme.palette.divider}`
+                    }}
+                >
+                    <Typography variant="h6" fontWeight="bold">
+                        Меню
+                    </Typography>
+                    <IconButton
+                        onClick={onToggle}
+                        sx={{ color: theme.palette.common.white }}
+                    >
+                        <IconX size={20} />
+                    </IconButton>
+                </Box>
             )}
 
-            <ul className={`nav flex-column px-2 small ${!isMobile ? "flex-grow-1" : ""}`}>
-                <li>
-                    <NavLink to="/dashboard" className={linkClass}>
-                        <IconChartBar className="me-2"/> {isOpen && "СВД"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/reports" className={linkClass}>
-                        <IconReport className="me-2"/> {isOpen && "Отчёты на кассу"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/orders" className={linkClass}>
-                        <IconTruck className="me-2"/> {isOpen && "Заказы"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/calls" className={linkClass}>
-                        <IconPhone className="me-2"/> {isOpen && "Записи звонков"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/repeat-requests" className={linkClass}>
-                        <IconRefresh className="me-2"/> {isOpen && "Запрос повтора"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/payouts/aggregators" className={linkClass}>
-                        <IconCash className="me-2"/> {isOpen && "Выплата агрегаторам"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/payouts/si" className={linkClass}>
-                        <IconUserDollar className="me-2"/> {isOpen && "Выплата СИ"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/profit" className={linkClass}>
-                        <IconChartBar className="me-2"/> {isOpen && "Наша прибыль"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/assign-orders" className={linkClass}>
-                        <IconBus className="me-2"/> {isOpen && "Маршрутка"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/schedule" className={linkClass}>
-                        <IconCalendar className="me-2"/> {isOpen && "График работы СИ"}
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/si-management" className={linkClass}>
-                        <IconUsers className="me-2"/> {isOpen && "Управление СИ"}
-                    </NavLink>
-                </li>
-            </ul>
+            {/* Toggle для десктопа */}
+            {!isMobile && (
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 1 }}>
+                    <IconButton
+                        onClick={onToggle}
+                        sx={{ color: theme.palette.common.white }}
+                        size="small"
+                    >
+                        {isOpen ? <IconChevronLeft/> : <IconChevronRight/>}
+                    </IconButton>
+                </Box>
+            )}
 
-            <div className="p-2 border-top">
-                <button
-                    className={`btn btn-outline-danger d-flex align-items-center justify-content-center ${isMobile ? "btn-sm w-50" : "w-100" }`}
+            {/* Меню навигации */}
+            <List sx={{ flexGrow: 1, px: 1 }}>
+                {menuItems.map((item) => {
+                    const IconComponent = item.icon;
+                    return (
+                        <ListItem key={item.path} disablePadding sx={{ mb: 0.5 }}>
+                            <ListItemButton
+                                component={NavLink}
+                                to={item.path}
+                                onClick={isMobile ? onToggle : undefined}
+                                sx={{
+                                    borderRadius: 1,
+                                    '&.active': {
+                                        backgroundColor: theme.palette.primary.main,
+                                        '&:hover': {
+                                            backgroundColor: theme.palette.primary.dark,
+                                        },
+                                    },
+                                    '&:hover': {
+                                        backgroundColor: theme.palette.action.hover,
+                                    },
+                                    color: theme.palette.common.white,
+                                    py: 1.5,
+                                }}
+                            >
+                                <ListItemIcon sx={{ minWidth: 40, color: 'inherit' }}>
+                                    <IconComponent size={20} />
+                                </ListItemIcon>
+                                {isOpen && (
+                                    <ListItemText
+                                        primary={item.label}
+                                        primaryTypographyProps={{
+                                            fontSize: '0.875rem',
+                                            fontWeight: 'medium'
+                                        }}
+                                    />
+                                )}
+                            </ListItemButton>
+                        </ListItem>
+                    );
+                })}
+            </List>
+
+            {/* Кнопка выхода */}
+            <Box sx={{ p: 2, borderTop: `1px solid ${theme.palette.divider}` }}>
+                <Button
+                    variant="outlined"
+                    color="error"
+                    fullWidth
                     onClick={handleLogout}
+                    startIcon={<IconLogout size={18} />}
+                    size={isMobile ? "small" : "medium"}
+                    sx={{
+                        justifyContent: isOpen ? 'flex-start' : 'center',
+                        color: theme.palette.common.white,
+                        borderColor: theme.palette.error.main,
+                        '&:hover': {
+                            borderColor: theme.palette.error.dark,
+                            backgroundColor: theme.palette.error.main,
+                        }
+                    }}
                 >
-                    <IconLogout className="me-2"/>
                     {isOpen && "Выйти"}
-                </button>
-            </div>
-        </aside>
+                </Button>
+            </Box>
+        </Box>
+    );
+
+    // Для мобильных устройств используем Drawer
+    if (isMobile) {
+        return (
+            <Drawer
+                anchor="left"
+                open={true}
+                onClose={onToggle}
+                sx={{
+                    '& .MuiDrawer-paper': {
+                        width: '100%',
+                    },
+                }}
+            >
+                {sidebarContent}
+            </Drawer>
+        );
+    }
+
+    // Для десктопа используем фиксированный Sidebar
+    return (
+        <Box
+            sx={{
+                width: isOpen ? 220 : 60,
+                height: '100vh',
+                position: 'fixed',
+                left: 0,
+                top: 0,
+                zIndex: theme.zIndex.drawer,
+                transition: theme.transitions.create('width', {
+                    easing: theme.transitions.easing.sharp,
+                    duration: theme.transitions.duration.enteringScreen,
+                }),
+                overflow: 'hidden',
+            }}
+        >
+            {sidebarContent}
+        </Box>
     );
 }

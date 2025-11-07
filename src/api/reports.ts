@@ -2,6 +2,7 @@ import { apiFetch } from "./http.ts";
 
 export interface ReportPayload {
     token: string;
+    finish_price: string;
     has_repeat: boolean; // true — "Да", false — "Нет"
     repeat_date?: string; // YYYY-MM-DDTHH:mm
     repeat_note: string;

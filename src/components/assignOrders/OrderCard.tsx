@@ -16,7 +16,7 @@ interface Order {
 interface Props {
     order: Order;
     engineers: Engineer[];
-    onAssign: (orderId: number, engineerId: number) => void;
+    onAssign: (orderNumber: number, engineerId: number) => void;
 }
 
 const OrderCard: React.FC<Props> = ({ order, engineers, onAssign }) => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     Box,
     TextField,
@@ -11,19 +11,24 @@ import {
     CircularProgress,
     Alert,
     IconButton,
+    FormControl,
+    InputLabel,
+    Select,
 } from "@mui/material";
-import { Add, Close, Save, Delete } from "@mui/icons-material";
-import type { Order, CreateOrderRequest } from "../../api/orders";
-import { useDictionaries } from "../../hooks/useDictionaries";
+import {Add, Close, Save, Delete} from "@mui/icons-material";
+import type {Order, CreateOrderRequest, OrderStatus} from "../../api/orders";
+import {useDictionaries} from "../../hooks/useDictionaries";
+import {ORDER_STATUSES} from "../../utils/orderStatus.ts";
 
 interface Props {
-    order: Order | null;
-    onSave: (data: CreateOrderRequest) => void;
-    onCancel: () => void;
+    order: Order | null,
+    onSave: (data: CreateOrderRequest, orderNumber?: number) => void,
+    onCancel: () => void,
+    formLoading?: boolean,
 }
 
-const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
-    const { sources, problems, loading, error } = useDictionaries();
+const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = false}) => {
+    const {sources, problems, loading, error} = useDictionaries();
 
     const [date, setDate] = useState(
         order?.scheduled_at ? order.scheduled_at.split(" ")[0] : ""
@@ -33,7 +38,7 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
     );
     const [workVolume, setWorkVolume] = useState(order?.work_volume || "");
     const [problemId, setProblemId] = useState<number>(order?.problem_id || 0);
-    const [price, setPrice] = useState<string>(order?.price || "0");
+    const [price, setPrice] = useState<string>(order?.price || "");
     const [address, setAddress] = useState(order?.address || "");
     const [phones, setPhones] = useState<string[]>(
         order?.phones && order.phones.length > 0 ? order.phones : [""]
@@ -41,7 +46,8 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
     const [clientName, setClientName] = useState(order?.client_name || "");
     const [note, setNote] = useState(order?.note || "");
     const [sourceId, setSourceId] = useState<number>(order?.aggregator_id || 0);
-    const [ourPercent, setOurPercent] = useState(order?.our_percent || 0);
+    const [ourPercent, setOurPercent] = useState<string>(String(order?.our_percent || ""));
+    const [status, setStatus] = useState<OrderStatus>(order?.status || "new");
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,18 +59,22 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
         const scheduled_at = date && time ? `${date}T${time}` : undefined;
         const filteredPhones = phones.filter(phone => phone.trim() !== "");
 
-        onSave({
-            aggregator_id: sourceId,
-            problem_id: problemId,
-            our_percent: ourPercent,
-            client_name: clientName.trim(),
-            phones: filteredPhones,
-            address: address.trim(),
-            work_volume: workVolume.trim(),
-            scheduled_at,
-            note: note.trim() || "",
-            price: Number(price) > 0 ? String(price) : "",
-        });
+        onSave(
+            {
+                aggregator_id: sourceId,
+                problem_id: problemId,
+                our_percent: ourPercent ? Number(ourPercent) : 0,
+                client_name: clientName.trim(),
+                phones: filteredPhones,
+                address: address.trim(),
+                work_volume: workVolume.trim(),
+                scheduled_at,
+                note: note.trim() || "",
+                price: price || "",
+                status: status,
+            },
+            order?.erp_number // Передаем ID заказа если он есть (для редактирования)
+        );
     };
 
     const addPhone = () => {
@@ -84,6 +94,24 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
         }
     };
 
+    // Обработчики для полей ввода
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value === "" || /^\d*\.?\d*$/.test(value)) {
+            setPrice(value);
+        }
+    };
+
+    const handlePercentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        if (value === "" || /^\d*\.?\d*$/.test(value)) {
+            const numValue = Number(value);
+            if (value === "" || (numValue >= 0 && numValue <= 100)) {
+                setOurPercent(value);
+            }
+        }
+    };
+
     const isFormValid =
         sourceId > 0 &&
         problemId > 0 &&
@@ -95,7 +123,7 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
     if (loading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" minHeight={200}>
-                <CircularProgress />
+                <CircularProgress/>
             </Box>
         );
     }
@@ -117,7 +145,7 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
             </Typography>
 
             {error && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert severity="error" sx={{mb: 2}}>
                     Ошибка загрузки справочников: {error}
                 </Alert>
             )}
@@ -129,6 +157,22 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                         Основная информация
                     </Typography>
                     <Stack spacing={2}>
+                        {/* Статус заказа */}
+                        <FormControl fullWidth>
+                            <InputLabel>Статус заказа</InputLabel>
+                            <Select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value as OrderStatus)}
+                                label="Статус заказа"
+                            >
+                                {ORDER_STATUSES.map((statusItem) => (
+                                    <MenuItem key={statusItem.key} value={statusItem.key}>
+                                        {statusItem.label}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
+
                         {/* Способ обращения */}
                         <TextField
                             label="Способ обращения *"
@@ -177,7 +221,7 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                     </Stack>
                 </Box>
 
-                <Divider />
+                <Divider/>
 
                 {/* Клиент и контакты */}
                 <Box>
@@ -217,15 +261,15 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                                             color="error"
                                             size="small"
                                         >
-                                            <Delete />
+                                            <Delete/>
                                         </IconButton>
                                     )}
                                 </Stack>
                             ))}
                             <Button
-                                startIcon={<Add />}
+                                startIcon={<Add/>}
                                 onClick={addPhone}
-                                sx={{ mt: 1 }}
+                                sx={{mt: 1}}
                                 size="small"
                                 variant="outlined"
                             >
@@ -247,7 +291,7 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                     </Stack>
                 </Box>
 
-                <Divider />
+                <Divider/>
 
                 {/* Детали заказа */}
                 <Box>
@@ -262,7 +306,7 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                                 type="date"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
-                                InputLabelProps={{ shrink: true }}
+                                InputLabelProps={{shrink: true}}
                                 fullWidth
                             />
                             <TextField
@@ -270,7 +314,7 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                                 type="time"
                                 value={time}
                                 onChange={(e) => setTime(e.target.value)}
-                                InputLabelProps={{ shrink: true }}
+                                InputLabelProps={{shrink: true}}
                                 fullWidth
                             />
                         </Stack>
@@ -281,24 +325,17 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                                 label="Цена, руб"
                                 type="number"
                                 value={price}
-                                onChange={(e) => setPrice(e.target.value)}
-                                onBlur={() => setPrice(String(price))}
+                                onChange={handlePriceChange}
                                 fullWidth
-                                inputProps={{ min: 0 }}
+                                inputProps={{min: 0}}
                             />
                             <TextField
                                 label="Наш процент, %"
                                 type="number"
                                 value={ourPercent}
-                                onChange={(e) => {
-                                    let val = Number(e.target.value);
-                                    if (val > 100) val = 100;
-                                    if (val < 0) val = 0;
-                                    setOurPercent(val);
-                                }}
-                                onBlur={() => setOurPercent(Number(ourPercent))}
+                                onChange={handlePercentChange}
                                 fullWidth
-                                inputProps={{ min: 0, max: 100 }}
+                                inputProps={{min: 0, max: 100}}
                             />
                         </Stack>
 
@@ -315,14 +352,14 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                     </Stack>
                 </Box>
 
-                <Divider />
+                <Divider/>
 
                 {/* Кнопки действий */}
                 <Stack direction="row" spacing={2} justifyContent="flex-end">
                     <Button
                         variant="outlined"
                         color="inherit"
-                        startIcon={<Close />}
+                        startIcon={<Close/>}
                         onClick={onCancel}
                         size="large"
                     >
@@ -331,12 +368,18 @@ const OrderForm: React.FC<Props> = ({ order, onSave, onCancel }) => {
                     <Button
                         variant="contained"
                         color="primary"
-                        startIcon={<Save />}
+                        startIcon={<Save/>}
                         type="submit"
                         disabled={!isFormValid}
                         size="large"
                     >
-                        {order ? "Сохранить изменения" : "Создать заказ"}
+                        {formLoading ? (
+                            <CircularProgress size={24} color="inherit"/>
+                        ) : order ? (
+                            "Сохранить изменения"
+                        ) : (
+                            "Создать заказ"
+                        )}
                     </Button>
                 </Stack>
 
