@@ -24,15 +24,74 @@ export const EngineerMotivationTable: React.FC = () => {
                 </div>
             ),
         },
-        { field: "primaryOrdersCount", headerName: "Количество выданных заказов за месяц", type: "number", flex: 1, minWidth: 100, cellClassName: "highlight-green" },
-        { field: "repeatOrdersCount", headerName: "Количеств повторов за месяц", type: "number", flex: 1, minWidth: 100 },
-        { field: "reportsCount", headerName: "Количество отчетов за месяц", type: "number", flex: 1, minWidth: 100, cellClassName: "highlight-green" },
-        { field: "ordersTotalAmount", headerName: "Прибыль с первичных", type: "number", flex: 1, minWidth: 150 },
-        { field: "repeatOrdersAmount", headerName: "Прибыль с повторов", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
-        { field: "grossProfit", headerName: "Валовая прибыль", type: "number", flex: 1, minWidth: 150 },
-        { field: "averageCheck", headerName: "Средний чек", type: "number", flex: 1, minWidth: 120, cellClassName: "highlight-green" },
-        { field: "motivationPercent", headerName: "Процент мотивации", type: "number", flex: 1, minWidth: 150 },
-        { field: "totalMotivation", headerName: "Сумма выплат", type: "number", flex: 1, minWidth: 150, cellClassName: "highlight-green" },
+        {
+            field: "primary_orders_count",
+            headerName: "Количество выданных заказов за месяц",
+            type: "number",
+            flex: 1,
+            minWidth: 100,
+            cellClassName: "highlight-green"
+        },
+        {
+            field: "repeat_orders_count",
+            headerName: "Количеств повторов за месяц",
+            type: "number",
+            flex: 1,
+            minWidth: 100
+        },
+        {
+            field: "reports_count",
+            headerName: "Количество отчетов за месяц",
+            type: "number",
+            flex: 1,
+            minWidth: 100,
+            cellClassName: "highlight-green"
+        },
+        {
+            field: "orders_total_amount",
+            headerName: "Прибыль с первичных",
+            type: "number",
+            flex: 1,
+            minWidth: 150
+        },
+        {
+            field: "repeat_orders_amount",
+            headerName: "Прибыль с повторов",
+            type: "number",
+            flex: 1,
+            minWidth: 150,
+            cellClassName: "highlight-green"
+        },
+        {
+            field: "gross_profit",
+            headerName: "Валовая прибыль",
+            type: "number",
+            flex: 1,
+            minWidth: 150
+        },
+        {
+            field: "average_check",
+            headerName: "Средний чек",
+            type: "number",
+            flex: 1,
+            minWidth: 120,
+            cellClassName: "highlight-green"
+        },
+        {
+            field: "motivation_percent",
+            headerName: "Процент мотивации",
+            type: "number",
+            flex: 1,
+            minWidth: 150
+        },
+        {
+            field: "total_motivation",
+            headerName: "Сумма выплат",
+            type: "number",
+            flex: 1,
+            minWidth: 150,
+            cellClassName: "highlight-green"
+        },
     ];
 
     return (
@@ -47,9 +106,9 @@ export const EngineerMotivationTable: React.FC = () => {
                 />
             </Box>
 
-            <Box sx={{ minWidth: 1300 }}>
+            <Box sx={{ width: "100%" }}>
                 <DataGrid
-                    rows={data.map((row, index) => ({ ...row, id: index }))}
+                    rows={data.map((row, index) => ({ ...row, id: row.engineer_id || index }))}
                     columns={columns}
                     loading={loading}
                     autoHeight
@@ -57,17 +116,25 @@ export const EngineerMotivationTable: React.FC = () => {
                     onPaginationModelChange={setPaginationModel}
                     pageSizeOptions={[10, 25, 50]}
                     getRowClassName={(params) =>
-                        params.row.motivationPercent >= 20 ? "highlight-green" : ""
+                        params.row.motivation_percent >= 20 ? "highlight-green" : ""
                     }
                     sx={{
                         "& .MuiDataGrid-columnHeaderTitle": {
                             whiteSpace: "normal",
-                            lineHeight: "20px",
+                            lineHeight: "1.2rem",
                             overflow: "visible",
                         },
+                        "& .MuiDataGrid-columnHeader": {
+                            height: "auto !important",
+                            minHeight: "100px !important",
+                            alignItems: "flex-start",
+                            paddingTop: "8px",
+                            paddingBottom: "8px",
+                        },
                         "& .MuiDataGrid-columnHeaders": {
-                            minHeight: 56,
-                            maxHeight: "none",
+                            maxHeight: "none !important",
+                            minHeight: "100px !important",
+                            alignItems: "flex-start",
                         },
                         "& .MuiDataGrid-cell": {
                             whiteSpace: "normal",
