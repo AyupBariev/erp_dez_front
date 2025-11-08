@@ -26,7 +26,7 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "primary_orders_count",
-            headerName: "Количество выданных заказов за месяц",
+            headerName: "Количество первичных за месяц",
             type: "number",
             flex: 1,
             minWidth: 100,
