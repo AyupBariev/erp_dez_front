@@ -11,7 +11,7 @@ import {
     Snackbar,
     Alert,
     Typography,
-    Stack,
+    Stack, TextField,
 } from "@mui/material";
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -31,22 +31,15 @@ const Orders: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [formLoading, setFormLoading] = useState(false); // Отдельное состояние для формы
     const [toast, setToast] = useState({ show: false, success: true, message: "" });
-    const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+    const [selectedDate, setSelectedDate] = useState<string>(
+        new Date().toISOString().split("T")[0]
+    );
 
     const loadOrders = async () => {
         try {
             setLoading(true);
-            let dateString: string | undefined;
 
-            if (selectedDate) {
-                // Создаем дату в локальной временной зоне
-                const year = selectedDate.getFullYear();
-                const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-                const day = String(selectedDate.getDate()).padStart(2, '0');
-                dateString = `${year}-${month}-${day}`;
-            }
-
-            const data = await getOrders(dateString);
+            const data = await getOrders(selectedDate);
             setOrders(data);
         } catch (err) {
             console.error("Ошибка при загрузке заказов:", err);
@@ -112,13 +105,12 @@ const Orders: React.FC = () => {
                 </Stack>
 
                 <Stack direction="row" spacing={2} alignItems="center">
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <DatePicker
-                            label="Дата"
-                            value={selectedDate}
-                            onChange={(newDate: Date | null) => setSelectedDate(newDate)}
-                        />
-                    </LocalizationProvider>
+                    <TextField
+                        type="date"
+                        value={selectedDate}
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        size="small"
+                    />
 
                     <Button variant="contained" startIcon={<AddIcon />} color="success" onClick={handleCreate}>
                         Создать заказ
