@@ -11,6 +11,7 @@ interface UseEngineerMotivationReturn {
 }
 
 export interface EngineerMonthlyMotivation {
+    engineer_id: number;
     engineer_name: string; // ФИО инженера
     reportsCount: number;
     primaryOrdersCount: number;
