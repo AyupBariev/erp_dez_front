@@ -336,8 +336,10 @@ export default function AssignOrdersTable({engineers, orders = [], onEditOrder, 
                         }}>
                             <Grid sx={{
                                 display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
+                                alignItems: 'left',
+                                flexDirection: 'column',
+                                flexWrap: 'wrap',
+                                justifyContent: 'space-around',
                                 p: 1,
                                 width: 150,
                                 borderRight: 2,
@@ -362,7 +364,9 @@ export default function AssignOrdersTable({engineers, orders = [], onEditOrder, 
                                     </Typography>
                                 </Box>
                                 <Tooltip title={eng.is_working ? "Выключить" : "Включить"} arrow>
-                                    <Box>
+                                    <Box sx={{
+                                        direction: 'rtl'
+                                    }}>
                                         {workingLoading === eng.id ? (
                                             <CircularProgress size={20} />
                                         ) : (
