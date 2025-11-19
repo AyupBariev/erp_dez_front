@@ -10,24 +10,13 @@ import {
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import type { Order } from "../../api/orders";
-import {getStatusColor} from "../../utils/orderStatus.ts";
+import {getStatusColor, getStatusLabel} from "../../utils/orderStatus.ts";
 import {RepeatIcon} from "lucide-react";
 
 interface Props {
     orders: Order[];
     onEdit: (order: Order) => void;
 }
-
-// Русские названия статусов
-const statusLabels: Record<string, string> = {
-    all: "Все",
-    new: "Новые",
-    in_proccess: "Логист выдал",
-    working: "Инженер принял",
-    closed_without_repeat: "На рассмотрении",
-    closed_finally: "Успешно закрыт",
-    canceled: "Отменен",
-};
 
 const OrdersGrid: React.FC<Props> = ({ orders, onEdit }) => {
     if (orders.length === 0) {
@@ -77,7 +66,7 @@ const OrdersGrid: React.FC<Props> = ({ orders, onEdit }) => {
                             {/* Статус и метка повтора */}
                             <Stack direction="row" spacing={1} alignItems="center" mb={2}>
                                 <Chip
-                                    label={statusLabels[order.status] || order.status}
+                                    label={getStatusLabel(order.status) || order.status}
                                     size="small"
                                     sx={{
                                         backgroundColor: getStatusColor(order.status) || "#757575",

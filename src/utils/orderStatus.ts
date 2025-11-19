@@ -5,6 +5,7 @@ export const ORDER_STATUSES: { key: OrderStatus; label: string }[] = [
     { key: "in_proccess", label: "Логист выдал" },
     { key: "working", label: "Инженер принял" },
     { key: "closed_without_repeat", label: "На рассмотрении" },
+    { key: "sent_to_cash", label: "На кассу" },
     { key: "closed_finally", label: "Успешно закрыт" },
     { key: "canceled", label: "Отменено" },
 ];
@@ -19,7 +20,8 @@ export const getStatusColor = (status: OrderStatus): string => {
         in_proccess: "#ed6c02", // оранжевый
         working: "#2e747d", // зеленый
         closed_without_repeat: "#9c27b0", // фиолетовый
-        closed_finally: "#2e7d32", // зеленый
+        sent_to_cash: "#085911", // светло зеленый
+        closed_finally: "#022003", // темно зеленый
         canceled: "#d32f2f", // красный
     };
     return colors[status];

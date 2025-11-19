@@ -165,7 +165,9 @@ const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = fals
                                 onChange={(e) => setStatus(e.target.value as OrderStatus)}
                                 label="Статус заказа"
                             >
-                                {ORDER_STATUSES.map((statusItem) => (
+                                {ORDER_STATUSES
+                                    .filter((statusItem) => statusItem.key !== "closed_finally")
+                                    .map((statusItem) => (
                                     <MenuItem key={statusItem.key} value={statusItem.key}>
                                         {statusItem.label}
                                     </MenuItem>

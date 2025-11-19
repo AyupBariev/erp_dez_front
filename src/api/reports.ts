@@ -8,10 +8,14 @@ export interface ReportPayload {
     repeat_note: string;
 }
 
-export interface ReportResponse {
+export interface SubmitReportResponse {
     success: boolean;
     message?: string;
     status?: string;
+}
+
+export interface Report {
+
 }
 
 /**
@@ -26,7 +30,7 @@ export const getReportLinkInfo = async (token: string) => {
 /**
  * Отправка отчёта инженером
  */
-export const submitReport = async (payload: ReportPayload): Promise<ReportResponse> => {
+export const submitReport = async (payload: ReportPayload): Promise<SubmitReportResponse> => {
     const data = await apiFetch(`/api/reports/submit`, {
         method: "POST",
         body: JSON.stringify(payload),

@@ -8,6 +8,8 @@ import AssignOrders from "../pages/AssignOrders/AssignOrders";
 import Layout from "../components/layout/Layout";
 import SIManagement from "../pages/SIManagement/SIManagement.tsx";
 import EngineerSubmitReport from "../pages/EngineerSubmitReport/EngineerSubmitReport.tsx";
+import Aggregators from "../pages/Payouts/Aggregators.tsx";
+import SI from "../pages/Payouts/SI.tsx";
 
 export default function AppRouter() {
     const { isAuthenticated } = useAuth();
@@ -22,6 +24,8 @@ export default function AppRouter() {
 
                     <Route path="/orders" element={<Orders />} />
                     <Route path="/assign-orders" element={<AssignOrders />} />
+                    <Route path="/payouts/aggregators" element={<Aggregators />} />
+                    <Route path="/payouts/si" element={<SI />} />
 
                     <Route path="/si-management" element={<SIManagement />} />
                     <Route path="*" element={<Navigate to="/dashboard" />} />

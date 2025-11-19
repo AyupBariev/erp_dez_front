@@ -6,6 +6,7 @@ export type OrderStatus =
     | "in_proccess"          // логист выдал инженеру
     | "working"              // инженер принял
     | "closed_without_repeat"// заказ отчитан, на рассмотрении
+    | "sent_to_cash"// на кассу
     | "closed_finally"       // заказ отчитан окончательно
     | "canceled";            // отменён
 

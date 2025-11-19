@@ -106,6 +106,7 @@ export default function AssignOrdersTable({engineers, orders = [], onEditOrder, 
             setUnassignLoadingId(erpNumber);
             const updatedOrder = await unAssignOrder(erpNumber);
             setOrdersState(prev => prev.map(o => o.erp_number === updatedOrder.erp_number ? updatedOrder : o));
+            setStatusMessages(prev => ({...prev, [erpNumber]: "⚠️ Выберите СИ перед назначением"}));
             setToast({visible: true, success: true, message: "✅ Заказ снят с инженера"});
         } catch {
             setToast({visible: true, success: false, message: "❌ Ошибка при снятии заказа"});

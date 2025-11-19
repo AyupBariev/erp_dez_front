@@ -49,48 +49,55 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "orders_total_amount",
-            headerName: "Прибыль с первичных",
+            headerName: "Прибыль с первичных ₽",
             type: "number",
             flex: 1,
             minWidth: 150
         },
         {
             field: "repeat_orders_amount",
-            headerName: "Прибыль с повторов",
+            headerName: "Прибыль с повторов ₽",
             type: "number",
             flex: 1,
-            minWidth: 150,
+            minWidth: 140,
             cellClassName: "highlight-green"
         },
         {
             field: "gross_profit",
-            headerName: "Валовая прибыль",
+            headerName: "Валовая прибыль ₽",
             type: "number",
             flex: 1,
             minWidth: 150
         },
         {
             field: "average_check",
-            headerName: "Средний чек",
+            headerName: "Ср. чек ₽",
             type: "number",
             flex: 1,
-            minWidth: 120,
+            minWidth: 100,
             cellClassName: "highlight-green"
         },
         {
-            field: "motivation_percent",
-            headerName: "Процент мотивации",
+            field: "aggregator_payout",
+            headerName: "Выплата агрегаторам ₽",
             type: "number",
             flex: 1,
             minWidth: 150
         },
         {
-            field: "total_motivation",
-            headerName: "Сумма выплат",
+            field: "motivation_percent",
+            headerName: "Процент мотивации %",
             type: "number",
             flex: 1,
-            minWidth: 150,
+            minWidth: 130,
             cellClassName: "highlight-green"
+        },
+        {
+            field: "total_motivation_amount",
+            headerName: "Сумма выплат ₽",
+            type: "number",
+            flex: 1,
+            minWidth: 140
         },
     ];
 

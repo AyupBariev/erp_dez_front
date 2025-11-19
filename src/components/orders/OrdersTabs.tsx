@@ -2,6 +2,7 @@ import React from "react";
 import { Tabs, Tab, Box } from "@mui/material";
 import OrdersGrid from "./OrdersGrid"; // переименуем в Grid
 import type { Order } from "../../api/orders";
+import {ORDER_STATUSES} from "../../utils/orderStatus.ts";
 
 interface Props {
     orders: Order[];
@@ -10,15 +11,11 @@ interface Props {
     onEdit: (order: Order) => void;
 }
 
-const tabs = [
+const all = [
     { key: "all", label: "Все" },
-    { key: "new", label: "Новые" },
-    { key: "in_proccess", label: "Логист выдал" },
-    { key: "working", label: "Инженер принял" },
-    { key: "closed_without_repeat", label: "На рассмотрении" },
-    { key: "closed_finally", label: "Успешно закрытые" },
-    { key: "canceled", label: "Отмененные" },
 ];
+
+const tabs = [...all, ...ORDER_STATUSES];
 
 const OrdersTabs: React.FC<Props> = ({ orders, activeTab, onTabChange, onEdit }) => {
     let filtered: Order[] = [];
@@ -38,6 +35,9 @@ const OrdersTabs: React.FC<Props> = ({ orders, activeTab, onTabChange, onEdit })
             break;
         case "closed_without_repeat":
             filtered = orders.filter((o) => o.status === "closed_without_repeat");
+            break;
+        case "sent_to_cash":
+            filtered = orders.filter((o) => o.status === "sent_to_cash");
             break;
         case "closed_finally":
             filtered = orders.filter((o) => o.status === "closed_finally");

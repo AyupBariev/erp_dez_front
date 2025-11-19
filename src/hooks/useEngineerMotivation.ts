@@ -13,19 +13,17 @@ interface UseEngineerMotivationReturn {
 export interface EngineerMonthlyMotivation {
     engineer_id: number;
     engineer_name: string; // ФИО инженера
-    reportsCount: number;
-    primaryOrdersCount: number;
-    repeatOrdersCount: number;
-    ordersTotalAmount: number;
-    repeatOrdersAmount: number;
-    grossProfit: number;
-    averageCheck: number;
-    motivationPercent: number;
-    totalMotivation: number;
-    confirmedByAdmin: boolean;
-    month: string; // ISO date
+    reports_count: number;
+    primary_orders_count: number;
+    repeat_orders_count: number;
+    orders_total_amount: number;
+    repeat_orders_amount: number;
+    gross_profit: number;
+    average_check: number;
+    motivation_percent: number;
+    total_motivation_amount: number;
+    aggregator_payout: number;
 }
-
 
 export const useEngineerMotivation = (): UseEngineerMotivationReturn => {
     const [data, setData] = useState<EngineerMonthlyMotivation[]>([]);
