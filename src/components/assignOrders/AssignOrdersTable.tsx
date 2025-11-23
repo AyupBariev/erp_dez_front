@@ -17,7 +17,7 @@ import {
     Stack,
     Tooltip,
     Typography,
-    Switch,
+    Switch, Dialog, DialogTitle, DialogContent, DialogActions,
 } from "@mui/material";
 import type {Order} from "../../api/orders";
 import {assignOrder, cancelOrder, unAssignOrder} from "../../api/orders";
@@ -49,6 +49,10 @@ export default function AssignOrdersTable({engineers, orders = [], onEditOrder, 
     const [toast, setToast] = useState({visible: false, success: true, message: ""});
     const [selectedEngineers, setSelectedEngineers] = useState<Record<number, number | null>>({});
     const [workingLoading, setWorkingLoading] = useState<number | null>(null);
+    const [unassignConfirm, setUnassignConfirm] = useState<{ open: boolean; order: Order | null }>({
+        open: false,
+        order: null
+    });
 
     useEffect(() => {
         setOrdersState(orders);
@@ -112,7 +116,12 @@ export default function AssignOrdersTable({engineers, orders = [], onEditOrder, 
             setToast({visible: true, success: false, message: "❌ Ошибка при снятии заказа"});
         } finally {
             setUnassignLoadingId(null);
+            setUnassignConfirm({ open: false, order: null }); // Закрываем модалку
         }
+    };
+
+    const handleUnassignClick = (order: Order) => {
+        setUnassignConfirm({ open: true, order });
     };
 
     const handleCancel = async (erpNumber: number) => {
@@ -469,7 +478,7 @@ export default function AssignOrdersTable({engineers, orders = [], onEditOrder, 
                                                         }}
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            handleUnassign(order.erp_number);
+                                                            handleUnassignClick(order); // Измените эту строку
                                                         }}
                                                         disabled={unassignLoadingId === order.erp_number}
                                                     >
@@ -501,6 +510,54 @@ export default function AssignOrdersTable({engineers, orders = [], onEditOrder, 
                     {toast.message}
                 </Alert>
             </Snackbar>
+            {/* Модальное окно подтверждения снятия */}
+            <Dialog
+                open={unassignConfirm.open}
+                onClose={() => setUnassignConfirm({ open: false, order: null })}
+                maxWidth="xs"
+                fullWidth
+            >
+                <DialogTitle>Подтверждение снятия</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Вы действительно хотите снять заказ <strong>№{unassignConfirm.order?.erp_number}</strong> с инженера?
+                    </Typography>
+                    {unassignConfirm.order && (
+                        <Box sx={{ mt: 2, p: 1, bgcolor: 'grey.100', borderRadius: 1 }}>
+                            <Typography variant="body2">
+                                <strong>Клиент:</strong> {unassignConfirm.order.client_name}
+                            </Typography>
+                            <Typography variant="body2">
+                                <strong>Адрес:</strong> {unassignConfirm.order.address}
+                            </Typography>
+                            <Typography variant="body2">
+                                <strong>Инженер:</strong> {unassignConfirm.order.engineer?.first_name} {unassignConfirm.order.engineer?.second_name}
+                            </Typography>
+                        </Box>
+                    )}
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        onClick={() => setUnassignConfirm({ open: false, order: null })}
+                        variant="outlined"
+                    >
+                        Отмена
+                    </Button>
+                    <Button
+                        onClick={() => unassignConfirm.order && handleUnassign(unassignConfirm.order.erp_number)}
+                        variant="contained"
+                        color="error"
+                        disabled={unassignLoadingId === unassignConfirm.order?.erp_number}
+                        startIcon={
+                            unassignLoadingId === unassignConfirm.order?.erp_number ?
+                                <CircularProgress size={16} /> :
+                                <PersonRemoveIcon />
+                        }
+                    >
+                        {unassignLoadingId === unassignConfirm.order?.erp_number ? 'Снимается...' : 'Снять'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

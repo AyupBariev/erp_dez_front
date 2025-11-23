@@ -100,7 +100,7 @@ function CashDialog({ row, onClose }: { row: ReportRow; onClose: (ok: boolean) =
                     type="number"
                     fullWidth
                     value={issued}
-                    hidden={row.motivation_percent < 20}
+                    disabled={row.motivation_percent < 20}
                     onChange={handleIssuedMoneyChange}
                     onBlur={handleIssBlur}
                     onFocus={handleFocus}
@@ -108,7 +108,7 @@ function CashDialog({ row, onClose }: { row: ReportRow; onClose: (ok: boolean) =
                     helperText={
                         showError
                             ? `Сумма должна быть ровно ${max}`
-                            : ''
+                            : (row.motivation_percent < 20 ? 'Низкий процент мотивации. Текущий: ' + row.motivation_percent + '%': '')
                     }
                     InputLabelProps={{ shrink: true }}
                     sx={{ mb: 2 }}

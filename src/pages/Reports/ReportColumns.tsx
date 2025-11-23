@@ -6,6 +6,7 @@ export type ReportRow = {
     order_id: number;
     order_status: string;
     engineer_id: number;
+    engineer_name: number;
     description: string;
     has_repeat: boolean;
     repeat_date: string | null;
@@ -21,10 +22,10 @@ export type ReportRow = {
 
 export const reportsColumns = (
     openCash: (r: ReportRow) => void,
-    openReturn: (r: ReportRow) => void
+    _openReturn: (r: ReportRow) => void
 ): GridColDef<ReportRow>[] => [
     { field: 'order_id', headerName: 'Заказ', width: 90 },
-    { field: 'engineer_id', headerName: 'Инженер', width: 110 },
+    { field: 'engineer_name', headerName: 'Инженер', width: 110 },
     { field: 'description', headerName: 'Описание', flex: 1 },
     {
         field: 'has_repeat',
@@ -39,10 +40,10 @@ export const reportsColumns = (
     },
     {
         field: 'repeat_date',
-            headerName: 'Дата повтора',
+        headerName: 'Дата повтора',
         width: 130,
-        valueFormatter: (p: GridRenderCellParams<ReportRow>) =>
-        p.value ? format(new Date(p.value), 'dd.MM.yyyy') : '',
+        renderCell: (p: GridRenderCellParams<ReportRow>) =>
+            p?.value ? format(new Date(p.value), 'dd/MM/yy HH:mm') : '–',
     },
     { field: 'repeat_note', headerName: 'Примечание повтора', flex: 1 },
     { field: 'to_cash', headerName: 'К сдаче', type: 'number', width: 100 },
@@ -67,16 +68,16 @@ export const reportsColumns = (
                 >
                     Принять отчёт
                 </Button>
-                <Button
-                    size="small"
-                    variant="outlined"
-                    color="error"
-                    onClick={() => openReturn(p.row)}
-                    disabled={p.row.order_status === 'closed_finally'}
-                    sx={{ height: 24, px: 0.5, py: 0, fontSize: '0.725rem' }}
-                >
-                    Вернуть СИ
-                </Button>
+                {/*<Button*/}
+                {/*    size="small"*/}
+                {/*    variant="outlined"*/}
+                {/*    color="error"*/}
+                {/*    onClick={() => openReturn(p.row)}*/}
+                {/*    disabled={p.row.order_status === 'closed_finally'}*/}
+                {/*    sx={{ height: 24, px: 0.5, py: 0, fontSize: '0.725rem' }}*/}
+                {/*>*/}
+                {/*    Вернуть СИ*/}
+                {/*</Button>*/}
             </Box>
         ),
     },
