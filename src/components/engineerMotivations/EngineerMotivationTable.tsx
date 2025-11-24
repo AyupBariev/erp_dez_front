@@ -78,6 +78,13 @@ export const EngineerMotivationTable: React.FC = () => {
             minWidth: 150
         },
         {
+            field: "net_profit",
+            headerName: "Чистая прибыль, ₽",
+            type: "number",
+            flex: 1,
+            minWidth: 150
+        },
+        {
             field: "aggregator_payout",
             headerName: "Выплата агрегаторам ₽",
             type: "number",
@@ -93,7 +100,7 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "motivation_percent",
-            headerName: "Процент мотивации %",
+            headerName: "Процент мотивации М, %",
             type: "number",
             flex: 1,
             minWidth: 130,
@@ -101,7 +108,7 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "total_motivation_amount",
-            headerName: "Сумма выплат, ₽",
+            headerName: "Сумма выплаты М, ₽",
             type: "number",
             flex: 1,
             minWidth: 140
