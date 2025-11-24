@@ -63,13 +63,6 @@ export const EngineerMotivationTable: React.FC = () => {
             cellClassName: "highlight-green"
         },
         {
-            field: "gross_profit",
-            headerName: "Валовая прибыль ₽",
-            type: "number",
-            flex: 1,
-            minWidth: 150
-        },
-        {
             field: "average_check",
             headerName: "Ср. чек ₽",
             type: "number",
@@ -78,8 +71,22 @@ export const EngineerMotivationTable: React.FC = () => {
             cellClassName: "highlight-green"
         },
         {
+            field: "gross_profit",
+            headerName: "Валовая прибыль ₽",
+            type: "number",
+            flex: 1,
+            minWidth: 150
+        },
+        {
             field: "aggregator_payout",
             headerName: "Выплата агрегаторам ₽",
+            type: "number",
+            flex: 1,
+            minWidth: 150
+        },
+        {
+            field: "total_amount",
+            headerName: "Общий сумма ₽",
             type: "number",
             flex: 1,
             minWidth: 150
