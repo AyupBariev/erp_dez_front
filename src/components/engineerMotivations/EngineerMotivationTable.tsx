@@ -49,14 +49,14 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "orders_total_amount",
-            headerName: "Прибыль с первичных ₽",
+            headerName: "Прибыль с первичных, ₽",
             type: "number",
             flex: 1,
             minWidth: 150
         },
         {
             field: "repeat_orders_amount",
-            headerName: "Прибыль с повторов ₽",
+            headerName: "Прибыль с повторов, ₽",
             type: "number",
             flex: 1,
             minWidth: 140,
@@ -72,7 +72,7 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "gross_profit",
-            headerName: "Валовая прибыль ₽",
+            headerName: "Валовая прибыль, ₽",
             type: "number",
             flex: 1,
             minWidth: 150
@@ -86,7 +86,7 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "total_amount",
-            headerName: "Общий сумма ₽",
+            headerName: "Общая сумма, ₽",
             type: "number",
             flex: 1,
             minWidth: 150
@@ -101,7 +101,7 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "total_motivation_amount",
-            headerName: "Сумма выплат ₽",
+            headerName: "Сумма выплат, ₽",
             type: "number",
             flex: 1,
             minWidth: 140
