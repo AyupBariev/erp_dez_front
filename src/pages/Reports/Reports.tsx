@@ -212,14 +212,23 @@ export default function Reports() {
                 <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <DatePicker label="С"
                                 value={from}
-                                onChange={(d) => setFrom(d ?? new Date())}
+                                onChange={(d) => {
+                                    // Convert Dayjs to Date if needed
+                                    const newDate = d instanceof Date ? d : d?.toDate();
+                                    setFrom(newDate ?? new Date());
+                                }}
                                 format="dd.MM.yyyy"
                                 enableAccessibleFieldDOMStructure={false}
                                 slots={{ textField: TextField }}
                     />
                     <DatePicker label="По"
                                 value={to}
-                                onChange={(d) => setTo(d ?? new Date())}
+
+                                onChange={(d) => {
+                                    // Convert Dayjs to Date if needed
+                                    const newDate = d instanceof Date ? d : d?.toDate();
+                                    setTo(newDate ?? new Date());
+                                }}
                                 format="dd.MM.yyyy"
                                 enableAccessibleFieldDOMStructure={false}
                                 slots={{ textField: TextField }}

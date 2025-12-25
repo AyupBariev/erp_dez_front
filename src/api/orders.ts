@@ -29,6 +29,7 @@ export interface Order {
     status: OrderStatus;
     is_repeat?: boolean;
     repeat_id?: number;
+    repeat_erp_number?: number;
     repeat_description?: string;
     repeated_by?: string;
     created_at?: string;
@@ -48,6 +49,8 @@ export interface CreateOrderRequest {
     scheduled_at?: string;
     engineer_id?: number;
     status: OrderStatus;
+    repeat_id?: number;
+    repeat_erp_number?: number;
 }
 
 export interface Problem {

@@ -19,6 +19,7 @@ import {Add, Close, Save, Delete} from "@mui/icons-material";
 import type {Order, CreateOrderRequest, OrderStatus} from "../../api/orders";
 import {useDictionaries} from "../../hooks/useDictionaries";
 import {ORDER_STATUSES} from "../../utils/orderStatus.ts";
+import dayjs from "dayjs";
 
 interface Props {
     order: Order | null,
@@ -31,12 +32,13 @@ const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = fals
     const {sources, problems, loading, error} = useDictionaries();
 
     const [date, setDate] = useState(
-        order?.scheduled_at ? order.scheduled_at.split(" ")[0] : ""
+        order?.scheduled_at ? dayjs(order.scheduled_at).format("YYYY-MM-DD") : ""
     );
     const [time, setTime] = useState(
-        order?.scheduled_at ? order.scheduled_at.split(" ")[1]?.slice(0, 5) : ""
+        order?.scheduled_at ? dayjs(order.scheduled_at).format("HH:mm") : ""
     );
     const [workVolume, setWorkVolume] = useState(order?.work_volume || "");
+    const [sourceId, setSourceId] = useState<number>(order?.aggregator_id || 0);
     const [problemId, setProblemId] = useState<number>(order?.problem_id || 0);
     const [price, setPrice] = useState<string>(order?.price || "");
     const [address, setAddress] = useState(order?.address || "");
@@ -45,9 +47,12 @@ const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = fals
     );
     const [clientName, setClientName] = useState(order?.client_name || "");
     const [note, setNote] = useState(order?.note || "");
-    const [sourceId, setSourceId] = useState<number>(order?.aggregator_id || 0);
     const [ourPercent, setOurPercent] = useState<string>(String(order?.our_percent || ""));
     const [status, setStatus] = useState<OrderStatus>(order?.status || "new");
+    const [isRepeat, setIsRepeat] = useState<boolean>(!!order?.repeat_erp_number);
+    const [parentOrder, setParentOrder] = useState<number | null>(
+        order?.repeat_erp_number ?? null
+    );
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,6 +77,8 @@ const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = fals
                 note: note.trim() || "",
                 price: price || "",
                 status: status,
+                repeat_erp_number: isRepeat ? parentOrder ?? undefined : undefined,
+
             },
             order?.erp_number // Передаем ID заказа если он есть (для редактирования)
         );
@@ -141,7 +148,7 @@ const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = fals
             onSubmit={handleSubmit}
         >
             <Typography variant="h6" textAlign="center" mb={3}>
-                {order ? "✏️ Редактировать заказ" : "🆕 Новый заказ"}
+                {order?.erp_number ? "✏️ Редактировать заказ" : "🆕 Новый заказ"}
             </Typography>
 
             {error && (
@@ -151,6 +158,35 @@ const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = fals
             )}
 
             <Stack spacing={3}>
+                <Box>
+                    <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                        Повторный заказ
+                    </Typography>
+
+                    <Stack spacing={2}>
+                        <FormControl>
+                            <Stack direction="row" alignItems="center" spacing={2}>
+                                <input
+                                    type="checkbox"
+                                    checked={isRepeat}
+                                    onChange={(e) => setIsRepeat(e.target.checked)}
+                                />
+                                <Typography>Это повторный заказ</Typography>
+                            </Stack>
+                        </FormControl>
+
+                        {isRepeat && (
+                            <TextField
+                                label="Родительский заказ №"
+                                value={parentOrder ?? ""}
+                                onChange={(e) =>
+                                    setParentOrder(e.target.value ? Number(e.target.value) : null)
+                                }
+                                fullWidth
+                            />
+                        )}
+                    </Stack>
+                </Box>
                 {/* Основная информация */}
                 <Box>
                     <Typography variant="subtitle1" fontWeight={600} mb={2}>
@@ -356,7 +392,6 @@ const OrderForm: React.FC<Props> = ({order, onSave, onCancel, formLoading = fals
 
                 <Divider/>
 
-                {/* Кнопки действий */}
                 <Stack direction="row" spacing={2} justifyContent="flex-end">
                     <Button
                         variant="outlined"

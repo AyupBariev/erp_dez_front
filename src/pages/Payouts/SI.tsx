@@ -4,7 +4,7 @@ import type { GridColDef, GridRenderCellParams} from '@mui/x-data-grid'
 import { CircularProgress, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, Card, CardContent, Box } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns'
-import { format } from 'date-fns'
+import { format, startOfMonth, endOfMonth } from 'date-fns'
 
 export type EngineerPayoutRow = {
     engineer_id: number;
@@ -171,7 +171,8 @@ function PayDialog({ row, onClose }: PayDialogProps) {
 export default function SI() {
     const [rows, setRows] = useState<EngineerPayoutRow[]>([]);
     const [load, setLoad] = useState(true);
-    const [month, setMonth] = useState<Date>(new Date());
+    const [from, setFrom] = useState<Date>(() => startOfMonth(new Date()));
+    const [to, setTo] = useState<Date>(() => endOfMonth(new Date()));
     const [pay, setPay] = useState<EngineerPayoutRow | null>(null);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -182,10 +183,12 @@ export default function SI() {
     }, []);
 
     const fetchData = () => {
+        if (!from || !to) return;
         setLoad(true);
-        const m = format(month, 'yyyy-MM');
+        const fromStr = format(from, 'yyyy-MM-dd');
+        const toStr = format(to, 'yyyy-MM-dd');
         const token = localStorage.getItem('token');
-        fetch(`/api/engineers/month-payouts?month=${m}`, {
+        fetch(`/api/engineers/month-payouts?from=${fromStr}&to=${toStr}`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then((r) => r.json())
@@ -193,7 +196,11 @@ export default function SI() {
             .finally(() => setLoad(false));
     };
 
-    useEffect(fetchData, [month]);
+    useEffect(() => {
+        if (from && to) {
+            fetchData();
+        }
+    }, [from, to]);
 
     if (load) return <CircularProgress />;
 
@@ -201,14 +208,32 @@ export default function SI() {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Card sx={{ height: '100vh', display: 'flex', flexDirection: 'column', boxShadow: 3 }}>
                 <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2 }}>
+                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap' }}>
                         <DatePicker
-                            views={['month', 'year']}
-                            label="Месяц"
-                            value={month}
-                            onChange={(d) => setMonth(d ?? new Date())}
+                            label="С"
+                            value={from}
+                            onChange={(d) => {
+                                // Convert Dayjs to Date if needed
+                                const newDate = d instanceof Date ? d : d?.toDate();
+                                setFrom(newDate ?? new Date());
+                            }}
+                            format="dd.MM.yyyy"
                             slotProps={{ textField: { size: isMobile ? 'small' : 'medium' } }}
                         />
+                        <DatePicker
+                            label="По"
+                            value={to}
+                            onChange={(d) => {
+                                // Convert Dayjs to Date if needed
+                                const newDate = d instanceof Date ? d : d?.toDate();
+                                setTo(newDate ?? new Date());
+                            }}
+                            format="dd.MM.yyyy"
+                            slotProps={{ textField: { size: isMobile ? 'small' : 'medium' } }}
+                        />
+                        <Button variant="contained" onClick={fetchData}>
+                            Обновить
+                        </Button>
                     </Box>
                     <Box sx={{ flex: 1, minHeight: 0 }}>
                         <DataGrid

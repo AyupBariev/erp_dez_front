@@ -2,10 +2,26 @@ import * as React from "react";
 import { DataGrid } from "@mui/x-data-grid";
 import type { GridColDef, GridRenderCellParams, GridPaginationModel } from "@mui/x-data-grid";
 import { useEngineerMotivation } from "../../hooks/useEngineerMotivation.ts";
-import { Box, TextField } from "@mui/material";
+import {
+    Box,
+    Button
+} from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { ru } from "date-fns/locale/ru";
 
 export const EngineerMotivationTable: React.FC = () => {
-    const { data, loading, error, month, setMonth } = useEngineerMotivation();
+    const {
+        data,
+        loading,
+        error,
+        from,
+        setFrom,
+        to,
+        setTo,
+        refetch
+    } = useEngineerMotivation();
 
     const [paginationModel, setPaginationModel] = React.useState<GridPaginationModel>({
         page: 0,
@@ -26,7 +42,7 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "primary_orders_count",
-            headerName: "Количество первичных за месяц",
+            headerName: "Количество первичных за период",
             type: "number",
             flex: 1,
             minWidth: 100,
@@ -34,14 +50,14 @@ export const EngineerMotivationTable: React.FC = () => {
         },
         {
             field: "repeat_orders_count",
-            headerName: "Количеств повторов за месяц",
+            headerName: "Количество повторов за период",
             type: "number",
             flex: 1,
             minWidth: 100
         },
         {
             field: "reports_count",
-            headerName: "Количество отчетов за месяц",
+            headerName: "Количество отчетов за период",
             type: "number",
             flex: 1,
             minWidth: 100,
@@ -117,16 +133,45 @@ export const EngineerMotivationTable: React.FC = () => {
 
     return (
         <Box sx={{ width: "100%", overflowX: "auto" }}>
-            <Box sx={{ my: 2, display: "flex", gap: 2 }}>
-                <TextField
-                    type="month"
-                    label="Месяц"
-                    value={month}
-                    onChange={(e) => setMonth(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                />
+            {/* Блок выбора диапазона дат */}
+            <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: 'wrap' }}>
+                <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ru}>
+                    <DatePicker
+                        label="С"
+                        value={from}
+                        onChange={(date) => {
+                            if (date) {
+                                // Convert Dayjs to Date if needed
+                                const dateValue = date instanceof Date ? date : date.toDate();
+                                setFrom(dateValue);
+                            }
+                        }}
+                        format="dd.MM.yyyy"
+                    />
+
+                    <DatePicker
+                        label="По"
+                        value={to}
+                        onChange={(date) => {
+                            if (date) {
+                                // Convert Dayjs to Date if needed
+                                const dateValue = date instanceof Date ? date : date.toDate();
+                                setTo(dateValue);
+                            }
+                        }}
+                        format="dd.MM.yyyy"
+                    />
+                </LocalizationProvider>
+                <Button
+                    variant="contained"
+                    onClick={refetch}
+                    sx={{ minHeight: '40px' }}
+                >
+                    Обновить
+                </Button>
             </Box>
 
+            {/* Таблица */}
             <Box sx={{ width: "100%" }}>
                 <DataGrid
                     rows={data.map((row, index) => ({ ...row, id: row.engineer_id || index }))}

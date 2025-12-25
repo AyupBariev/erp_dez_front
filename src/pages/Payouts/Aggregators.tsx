@@ -127,19 +127,29 @@ export default function AggregatorPayoutPage() {
                 <CardContent sx={{flex: 1, display: 'flex', flexDirection: 'column'}}>
                     <Box sx={{display: 'flex', gap: 2, alignItems: 'center', mb: 2, flexWrap: 'wrap'}}>
                         <CalendarTodayIcon color="primary"/>
-                        <DatePicker label="С"
-                                    value={from}
-                                    onChange={(d) => setFrom(d ?? new Date())}
-                                    format="dd.MM.yyyy"
-                                    enableAccessibleFieldDOMStructure={false}
-                                    slots={{ textField: TextField }}
+                        <DatePicker
+                            label="С"
+                            value={from}
+                            onChange={(d) => {
+                                // Convert Dayjs to Date if needed
+                                const newDate = d instanceof Date ? d : d?.toDate();
+                                setFrom(newDate ?? new Date());
+                            }}
+                            format="dd.MM.yyyy"
+                            enableAccessibleFieldDOMStructure={false}
+                            slots={{ textField: TextField }}
                         />
-                        <DatePicker label="По"
-                                    value={to}
-                                    onChange={(d) => setTo(d ?? new Date())}
-                                    format="dd.MM.yyyy"
-                                    enableAccessibleFieldDOMStructure={false}
-                                    slots={{ textField: TextField }}
+                        <DatePicker
+                            label="По"
+                            value={to}
+                            onChange={(d) => {
+                                // Convert Dayjs to Date if needed
+                                const newDate = d instanceof Date ? d : d?.toDate();
+                                setTo(newDate ?? new Date());
+                            }}
+                            format="dd.MM.yyyy"
+                            enableAccessibleFieldDOMStructure={false}
+                            slots={{ textField: TextField }}
                         />
                     </Box>
                     <Box sx={{flex: 1, minHeight: 0}}>

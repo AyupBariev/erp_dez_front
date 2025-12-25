@@ -10,6 +10,8 @@ import SIManagement from "../pages/SIManagement/SIManagement.tsx";
 import EngineerSubmitReport from "../pages/EngineerSubmitReport/EngineerSubmitReport.tsx";
 import Aggregators from "../pages/Payouts/Aggregators.tsx";
 import SI from "../pages/Payouts/SI.tsx";
+import RepeatRequestsPage from "../pages/RepeatRequests/RepeatRequests.tsx";
+import Profit from "../pages/Profit/Profit.tsx";
 
 export default function AppRouter() {
     const { isAuthenticated } = useAuth();
@@ -17,15 +19,18 @@ export default function AppRouter() {
     return (
         <Routes>
             <Route path="/login" element={<Login />} />
+            <>
             {isAuthenticated ? (
                 <Route element={<Layout />}>
                     <Route path="/dashboard" element={<Dashboard />} />
                     <Route path="/reports" element={<Reports />} />
 
                     <Route path="/orders" element={<Orders />} />
+                    <Route path="/repeat-requests" element={<RepeatRequestsPage />} />
                     <Route path="/assign-orders" element={<AssignOrders />} />
                     <Route path="/payouts/aggregators" element={<Aggregators />} />
                     <Route path="/payouts/si" element={<SI />} />
+                    <Route path="/profit" element={<Profit />} />
 
                     <Route path="/si-management" element={<SIManagement />} />
                     <Route path="*" element={<Navigate to="/dashboard" />} />
@@ -33,6 +38,7 @@ export default function AppRouter() {
             ) : (
                 <Route path="*" element={<Navigate to="/login" />} />
             )}
+            </>
             <Route path="/reports/submit" element={<EngineerSubmitReport />} />
         </Routes>
     );
